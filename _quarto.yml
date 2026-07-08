@@ -9,6 +9,7 @@ book:
     title: "A tutorial for brms"
   chapters:
     - index.qmd
+    - getting-started.qmd
 
 format:
   html:
