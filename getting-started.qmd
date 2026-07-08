@@ -21,22 +21,16 @@ first run `install.packages("devtools")`). To install RTools, first go to
 Here, find the *Rtools45 installer*, download it, and follow its instructions
 while keeping all the default choices.
 
-**In macOS**, the C++ toolchain needs *Xcode Command Line Tools*. To check if
-this is already installed, go to the Terminal (open `Finder > Applications >
-Terminal`) and run
+**In macOS**, the C++ toolchain needs *Xcode Command Line Tools* and
+`gfortran`. To check if Xcode this is already installed, go to the Terminal
+(open `Finder > Applications > Terminal`) and run
 ```
-g++ --version
-make --version
+xcode-select --version
 ```
 
-If your mac has `g++` at version 4.9.3 or later and `make` at version
-3.81 or later, you do not need to install anything else (although newer
-versions of `g++` are faster). If you do not have these tools, or if you want
-to update them, run
-
+We can instal xcode (which may take a while) by running
 ```
-sudo apt install g++
-sudo apt install make
+xcode-select --install
 ```
 
 ### Default version of brms
