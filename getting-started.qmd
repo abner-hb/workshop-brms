@@ -15,15 +15,15 @@ in the background. Setting up this toolchain can take several minutes, but
 needs to be done only once.
 
 **In Windows**, the C++ toolchain needs *RTools* 4.5. To check if this is
-already installed, go to R and run `devtools::find_rtools()`. To install
-RTools, first go to [this website](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html).
+already installed, go to R and run `devtools::find_rtools()` (you may need to
+first run `install.packages("devtools")`). To install RTools, first go to
+[this website](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html).
 Here, find the *Rtools45 installer*, download it, and follow its instructions
 while keeping all the default choices.
 
 **In macOS**, the C++ toolchain needs *Xcode Command Line Tools*. To check if
 this is already installed, go to the Terminal (open `Finder > Applications >
 Terminal`) and run
-
 ```
 g++ --version
 make --version
@@ -83,4 +83,46 @@ better to set it up in advance
 
 `brms` uses a backend to interface with Stan. The default backend is `rstan`,
 which does not require any additional installation but is somewhat slow. An
-alternative backend is `cmdstanr`, which needs to be installed separately but is much faster than `rstan`.
+alternative backend is `cmdstanr`, which needs to be installed separately but is much faster than `rstan`. The extra setup is well worth the effort.
+
+To install `cmdstanr`, we first download the package in R:
+
+```{r}
+#| eval: false
+# Run this in a fresh R session or after restarting your current session
+install.packages(
+    pkgs = "cmdstanr",
+    repos = c('https://stan-dev.r-universe.dev', getOption("repos"))
+)
+```
+
+Now we can verify that the C++ toolchain also works with cmdstanr
+
+```{r check cmdstan toolchain}
+#| eval: false
+library(cmdstanr)
+check_cmdstan_toolchain()
+```
+```
+The C++ toolchain required for CmdStan is setup properly!
+```
+
+Now we can ask R to configure `cmdstanr` for us. This process can take a few
+minutes and will show many weird messages. We can ignore these messages as
+long as R does not show an error.
+
+```{r}
+#| eval: false
+install_cmdstan(cores = 2)
+```
+
+We can verify that `brms` can now call `cmdstanr` by running
+
+```{r test brms with cmdstanr}
+#| eval: false
+library(brms)
+options(brms.backend = 'cmdstanr') # This forces brms to use cmdstanr
+fit1 <- brm(count ~ zAge + zBase * Trt + (1|patient),
+            data = epilepsy, family = poisson())
+summary(fit1)
+```
