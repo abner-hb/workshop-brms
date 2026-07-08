@@ -1,0 +1,39 @@
+---
+engine: knitr
+---
+
+Last modified: `r Sys.Date()`
+
+# Preface {.unnumbered}
+
+These self-contained notes are intended for those that want to know how to fit
+Bayesian models in R, or for those that want a flexible library. These notes
+assume that the user knows how functions, vectors, and data frames work in R.
+
+## Creation of this document {.unnumbered}
+
+These notes are published using [Quarto](https://quarto.org); the source code
+is available at <INSERT_LATER>.
+
+You can switch between light and dark modes using the button in the top left
+corner of the screen. Dark mode reverses the colors of the images to reduce
+brightness. To show an image in its original colors, move your mouse over it
+(or press it if you are on a mobile device). All images link to more detailed
+full-size versions.
+
+If you have any questions or comments about these notes, you can contact Abner
+Heredia-Bustos (<abnerhb@umich.edu>).
+
+## Contact information {.unnumbered}
+
+### CSCAR@ISR {.unnumbered}
+
+<NEW_WEBSITE_HERE>
+
+LOREM IPSUM
+
+
+## Acknowledgments {.unnumbered}
+
+We thank Abner Heredia Bustos and Brady West for their contributions to these
+notes over the years.
