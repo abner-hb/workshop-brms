@@ -1,0 +1,17 @@
+# Getting started with brms
+
+# Installation
+
+Before installing brms, update R to the latest available version. This will ensure that all our libraries will be compatible with each other. Installing
+brms with an older version of R may work, but is likely to cause weird issues
+later.
+
+`brms`'s power and flexibility require some special preparations, but the first step is easy: install brms with
+
+```{r install brms}
+#| eval: false
+install.packages("brms")
+```
+
+ The first
+step is to install a special R library called `devtools`.
