@@ -48,7 +48,36 @@ With our C++ toolchain ready, we can go back to R and install `brms`. It may tak
 install.packages("brms")
 ```
 
+We can verify that our `brms` installation works properly by running the
+commands below. For now, you do not need to understand its meaning.
 
+```{r test brms installation}
+#| eval: false
+library(brms)
+fit1 <- brm(count ~ zAge + zBase * Trt + (1|patient),
+            data = epilepsy, family = poisson())
+summary(fit1)
+```
+
+The final part of your output should resemble this (the numbers can change
+slightly):
+
+```
+Regression Coefficients:
+           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept      1.77      0.12     1.53     2.00 1.00      642     1149
+zAge           0.10      0.09    -0.07     0.27 1.00      690      873
+zBase          0.70      0.12     0.46     0.95 1.00      591     1080
+Trt1          -0.26      0.16    -0.58     0.05 1.00      699     1319
+zBase:Trt1     0.05      0.17    -0.29     0.38 1.00      681     1115
+```
+
+::: {.callout-warning}
+### Install toolchain before brms
+R would not complain if we installed `brms` *before* preparing the C++
+toolchain. But without the toolchain none of our models would run, so it is
+better to set it up in advance
+:::
 
 ### Faster brms with cmdstanr
 
