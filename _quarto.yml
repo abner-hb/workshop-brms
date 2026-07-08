@@ -1,6 +1,6 @@
 project:
   type: book
-  pre-render: make quarto-prerender
+  # pre-render: make quarto-prerender
   output-dir: docs
 
 book:
@@ -8,7 +8,7 @@ book:
   sidebar:
     title: "A tutorial for brms"
   chapters:
-    - preface.qmd
+    - index.qmd
 
 format:
   html:
