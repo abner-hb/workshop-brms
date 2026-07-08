@@ -2,16 +2,50 @@
 
 # Installation
 
-Before installing brms, update R to the latest available version. This will ensure that all our libraries will be compatible with each other. Installing
-brms with an older version of R may work, but is likely to cause weird issues
-later.
+`brms`'s power and flexibility require special preparations. First,
+update R to its latest available version. This will ensure that all our
+libraries will be compatible with each other. Installing brms with an older
+version of R may work, but is likely to cause problems later.
 
-`brms`'s power and flexibility require some special preparations, but the first step is easy: install brms with
+## C++ toolchain
+
+We have to set up our computer so that it can use C++ in the background. This
+setup only needs to be done once.
+
+### In Windows
+
+For Windows, we need to install RTools 4.5 (available
+[here](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html)).
+Use the Rtools45 installer and follow its instructions, keeping all the default
+choices.
+
+### In macOS
+
+For macOS, we need to install Xcode Command Line Tools. To check if this is
+already installed, go to the Terminal (open `Finder > Applications >
+Terminal`) and run
+
+```
+g++ --version
+make --version
+```
+
+If your computer has `g++` at version 4.9.3 or later and `make` at version
+3.81 or later, you do not need to install anything else (although newer
+versions of `g++` are faster). If you do not have these tools, or if you want
+to update them, run the commands:
+
+```
+sudo apt install g++
+sudo apt install make
+```
 
 ```{r install brms}
 #| eval: false
 install.packages("brms")
 ```
+
+This installation includes several different packages, so it may take a few minutes to finish.
 
  The first
 step is to install a special R library called `devtools`.
