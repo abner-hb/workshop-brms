@@ -1,3 +1,9 @@
 /.quarto/
 **/*.quarto_ipynb
 needed_packages.R
+resources.txt
+**/*.html
+**.css
+**.js
+**.json
+**.woff
