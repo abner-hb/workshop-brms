@@ -13,6 +13,7 @@ book:
   chapters:
     - index.qmd
     - getting-started.qmd
+    - lin-reg-brms.qmd
 
 format:
   html:

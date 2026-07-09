@@ -1,0 +1,50 @@
+# Linear regression in brms
+
+It is good to approach `brms` as a modular library that helps us add or swap
+parts of a model as needed. With this modularity, we need not resort to
+subtle syntax or elaborate structures; we use simple code for simple models.
+
+Imagine, for example, that we want to know the average weight of three types of penguins: Adelie, Chinstrap, and Gentoo. R has some data about these penguins.
+
+```{r prepare penguin data}
+#| eval: true
+# Load and prepare data ####
+data(penguins)
+penguins$body_mass_kg = penguins$body_mass / 1000
+summary(penguins)
+```
+
+```{r visualize penguin weights}
+#| eval: true
+library(ggplot2)
+ggplot(penguins, mapping = aes(x = body_mass_kg)) +
+  geom_histogram(binwidth = 0.2) +
+  facet_wrap(~species, nrow = 3, ncol = 1) +
+  labs(title = "Gentoo penguins are the heaviest") +
+  theme_bw()
+```
+
+Let us fit a regression to estimate the average weight of our three species.
+Base R includes the widely-used `lm()` function. For this simple model, `lm()` requires a formula to describe the regression function, and the name of the
+data set to find the corresponding variables.
+
+```{r simple model with lm}
+fit_peng_boring <- lm(
+    body_mass_kg ~ species,
+    data = penguins
+)
+summary(fit_peng_boring)
+```
+
+The code to fit the same model using `brms` is equally simple. Do not try to
+run this for now unless you have previously installed `brms`.
+
+```{r simple model with brm}
+library(brms)
+options(brms.backend = "cmdstanr")
+fit_peng <- brm(
+    body_mass_kg ~ species,
+    data = penguins,
+    refresh = 0 # To omit progress reports
+)
+```
