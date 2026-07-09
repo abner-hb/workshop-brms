@@ -1,4 +1,32 @@
-# Getting started with brms
+# Introducing `brms`
+
+## What is `brms`?
+
+`brms` is an R library for **b**ayesian **r**egression **m**odels using
+**S**tan:
+
++ Models: a mathematical description of an observed or hypothesized behavior.
++ Regression: a model relates variables through linear combinations of
+variables.
++ Bayesian: a model that uses Bayess theorem to obtain likely values for some
+quantity of interest.
++ Stan: a probabilistic programming language for Bayesian modeling.
+
+`brms` can fit many types of models, including: linear, robust linear, count
+data, survival, response times, ordinal, zero-inflated, hurdle, and even
+self-defined mixture models. `brms` can also account for non-linear terms,
+auto-correlation structures, censoring and truncation, meta-analytic standard
+errors, and more. And it can combine these models into custom versions for more complicated data.
+
+`brms` can give good uncertainty estimates for all these models. It also
+offers thorough diagnostics to check how well a model fits the data, and how
+reliable the estimated parameters are.
+
+Housing all these features in a single modeling library affords us a
+consistent syntax and an ecosystem of libraries that work automatically with
+most models. So, with `brms` we can learn new models incrementally and we can
+share code and help with other people even their models differ from ours.
+
 
 ## Installation
 
