@@ -9,41 +9,39 @@ likely to cause problems later.
 
 ### C++ toolchain
 
-`brms` uses C++ to translate our models in R into a machinespeak that the
-computer runs more efficiently. So, our computer needs a toolchain to run C++
-in the background. Setting up this toolchain can take several minutes, but
-needs to be done only once.
+`brms` needs a C++ toolchain to translate R models into a more efficient
+machinespeak that runs in the background. Setting up this toolchain can take
+several minutes, but needs to be done only once.
 
-**In Windows**, the C++ toolchain needs *RTools* 4.5. To check if this is
+**In Windows**, the C++ toolchain comes with *RTools* 4.5. To check if this is
 already installed, go to R and run `devtools::find_rtools()` (you may need to
-first run `install.packages("devtools")`). To install RTools, first go to
+first run `install.packages("devtools")`). To install RTools, go to
 [this website](https://cran.r-project.org/bin/windows/Rtools/rtools45/rtools.html).
-Here, find the *Rtools45 installer*, download it, and follow its instructions
-while keeping all the default choices.
+Here, download the *Rtools45 installer* and follow its instructions while
+keeping all the default choices.
 
-**In macOS**, the C++ toolchain needs *Xcode Command Line Tools* and
-`gfortran`. To check if Xcode this is already installed, go to the Terminal
-(open `Finder > Applications > Terminal`) and run
+**In macOS**, the C++ toolchain comes with *Xcode Command Line Tools*. First,
+go to the Terminal (open `Finder > Applications > Terminal`) and check
+if Xcode this is already installed with
 ```
 xcode-select --version
 ```
 
-We can instal xcode (which may take a while) by running
+If not, install xcode (which may take a while) with
 ```
 xcode-select --install
 ```
 
 ### Default version of brms
 
-With our C++ toolchain ready, we can go back to R and install `brms`. It may take a few minutes to download and install all the packages bundled with `brms`.
+With our C++ toolchain ready, we can return to R and install `brms`.
 
 ```{r install brms}
 #| eval: false
 install.packages("brms")
 ```
 
-We can verify that our `brms` installation works properly by running the
-commands below. For now, you do not need to understand its meaning.
+Run the commands below to verify that `brms` works properly.
 
 ```{r test brms installation}
 #| eval: false
@@ -70,16 +68,18 @@ zBase:Trt1     0.05      0.17    -0.29     0.38 1.00      681     1115
 ### Install toolchain before brms
 R would not complain if we installed `brms` *before* preparing the C++
 toolchain. But without the toolchain none of our models would run, so it is
-better to set it up in advance
+better to set it up in advance.
 :::
 
 ### Faster brms with cmdstanr
 
-`brms` uses a backend to interface with Stan. The default backend is `rstan`,
+`brms` interfaces with Stan using a backend. The default backend is `rstan`,
 which does not require any additional installation but is somewhat slow. An
-alternative backend is `cmdstanr`, which needs to be installed separately but is much faster than `rstan`. The extra setup is well worth the effort.
+alternative backend is `cmdstanr`, which needs to be installed separately but
+is much faster than `rstan`. Although tedious, the extra setup is well worth
+the effort.
 
-To install `cmdstanr`, we first download the package in R:
+To install `cmdstanr`, first download the package in R:
 
 ```{r}
 #| eval: false
@@ -90,7 +90,7 @@ install.packages(
 )
 ```
 
-Now we can verify that the C++ toolchain also works with cmdstanr
+Verify that the C++ toolchain also works with `cmdstanr`:
 
 ```{r check cmdstan toolchain}
 #| eval: false
@@ -101,16 +101,16 @@ check_cmdstan_toolchain()
 The C++ toolchain required for CmdStan is setup properly!
 ```
 
-Now we can ask R to configure `cmdstanr` for us. This process can take a few
-minutes and will show many weird messages. We can ignore these messages as
-long as R does not show an error.
+Now R can configure `cmdstanr` for us. This process can take a few minutes.
+Ignore all the weird messages that will appear; we care only about warnings
+and errors.
 
 ```{r}
 #| eval: false
 install_cmdstan(cores = 2)
 ```
 
-We can verify that `brms` can now call `cmdstanr` by running
+Finally, verify that `brms` can call `cmdstanr`:
 
 ```{r test brms with cmdstanr}
 #| eval: false
