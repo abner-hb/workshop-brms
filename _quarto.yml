@@ -3,6 +3,9 @@ project:
   # pre-render: make quarto-prerender
   output-dir: docs
 
+execute:
+  eval: false
+
 book:
   title: "A tutorial for brms"
   sidebar:

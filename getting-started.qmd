@@ -6,9 +6,9 @@
 **S**tan:
 
 + Models: a mathematical description of an observed or hypothesized behavior.
-+ Regression: a model relates variables through linear combinations of
++ Regression: a model that relates variables through linear combinations of
 variables.
-+ Bayesian: a model that uses Bayess theorem to obtain likely values for some
++ Bayesian: a model that uses Bayes' theorem to obtain likely values for some
 quantity of interest.
 + Stan: a probabilistic programming language for Bayesian modeling.
 
@@ -26,7 +26,6 @@ Housing all these features in a single modeling library affords us a
 consistent syntax and an ecosystem of libraries that work automatically with
 most models. So, with `brms` we can learn new models incrementally and we can
 share code and help with other people even their models differ from ours.
-
 
 ## Installation
 
@@ -65,14 +64,12 @@ xcode-select --install
 With our C++ toolchain ready, we can return to R and install `brms`.
 
 ```{r install brms}
-#| eval: false
 install.packages("brms")
 ```
 
 Run the commands below to verify that `brms` works properly.
 
 ```{r test brms installation}
-#| eval: false
 library(brms)
 fit1 <- brm(count ~ zAge + zBase * Trt + (1|patient),
             data = epilepsy, family = poisson())
@@ -110,7 +107,6 @@ the effort.
 To install `cmdstanr`, first download the package in R:
 
 ```{r}
-#| eval: false
 # Run this in a fresh R session or after restarting your current session
 install.packages(
     pkgs = "cmdstanr",
@@ -121,10 +117,10 @@ install.packages(
 Verify that the C++ toolchain also works with `cmdstanr`:
 
 ```{r check cmdstan toolchain}
-#| eval: false
 library(cmdstanr)
 check_cmdstan_toolchain()
 ```
+
 ```
 The C++ toolchain required for CmdStan is setup properly!
 ```
@@ -133,15 +129,13 @@ Now R can configure `cmdstanr` for us. This process can take a few minutes.
 Ignore all the weird messages that will appear; we care only about warnings
 and errors.
 
-```{r}
-#| eval: false
+```{r install cmdstan}
 install_cmdstan(cores = 2)
 ```
 
 Finally, verify that `brms` can call `cmdstanr`:
 
 ```{r test brms with cmdstanr}
-#| eval: false
 library(brms)
 options(brms.backend = 'cmdstanr') # This forces brms to use cmdstanr
 fit1 <- brm(count ~ zAge + zBase * Trt + (1|patient),
