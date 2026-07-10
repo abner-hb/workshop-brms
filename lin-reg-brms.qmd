@@ -1,50 +1,70 @@
 # Linear regression in brms
 
-It is good to approach `brms` as a modular library that helps us add or swap
-parts of a model as needed. With this modularity, we need not resort to
-subtle syntax or elaborate structures; we use simple code for simple models.
+`brms` allows us to add or remove parts of a model as needed, so our code is
+only as complicated as the model we want to fit. Simple code for simple
+models; fancy code for fancy models.
 
-Imagine, for example, that we want to know the average weight of three types of penguins: Adelie, Chinstrap, and Gentoo. R has some data about these penguins.
+Imagine, for example, that we like penguins and we want to study their weight.
+R has some clean data about three types of chilly fellows: Adelie, Chinstrap,
+and Gentoo.
 
-```{r prepare penguin data}
-#| eval: true
-# Load and prepare data ####
-data(penguins)
-penguins$body_mass_kg = penguins$body_mass / 1000
-summary(penguins)
-```
-
-```{r visualize penguin weights}
+```{r load penguin data}
 #| eval: true
 library(ggplot2)
+data(penguins)
+penguins$body_mass_kg = penguins$body_mass / 1000
+```
+
+To start, let us compare the weights of these three groups. The histogram
+below suggests that Gentoo penguins tend to be the heaviest, while
+Adelie and Chinstrap tend to have similar weights.
+
+```{r visualize penguin weights}
+#| code-fold: true
+#| eval: true
+#| warning: false
+#| fig-align: center
+#| fig-width: 4
+#| fig-height: 4
 ggplot(penguins, mapping = aes(x = body_mass_kg)) +
-  geom_histogram(binwidth = 0.2) +
-  facet_wrap(~species, nrow = 3, ncol = 1) +
-  labs(title = "Gentoo penguins are the heaviest") +
-  theme_bw()
+    geom_histogram(binwidth = 0.2, color = "black", fill = "darkorange") +
+    facet_wrap(~species, nrow = 3, ncol = 1) +
+    labs(
+    title = "Gentoo penguins are the heaviest",
+    x = "Body mass (kg)",
+    y = "Count"
+    ) +
+    theme_minimal()
 ```
 
-Let us fit a regression to estimate the average weight of our three species.
-Base R includes the widely-used `lm()` function. For this simple model, `lm()` requires a formula to describe the regression function, and the name of the
-data set to find the corresponding variables.
+We can complement this histogram with estimates for average weight of each
+group of penguins. A linear regression can give us these estimates along with
+their confidence intervals. We can fit this (and any other) regression in
+`brms` using the function `brm()` (short for "bayesian regression model"),
+which for our simple model requires only a formula to describe the regression
+function and the name of the data set that houses the corresponding variables.
 
-```{r simple model with lm}
-fit_peng_boring <- lm(
-    body_mass_kg ~ species,
-    data = penguins
-)
-summary(fit_peng_boring)
-```
-
-The code to fit the same model using `brms` is equally simple. Do not try to
-run this for now unless you have previously installed `brms`.
+The code below shows how to fit a linear regression with weight (in kg) as the
+dependent variable and species as the independent categorical variable with
+values "Adelie", "Chinstrap", and "Gentoo". Run this code and ignore its
+lengthy output for now.
 
 ```{r simple model with brm}
 library(brms)
 options(brms.backend = "cmdstanr")
-fit_peng <- brm(
-    body_mass_kg ~ species,
-    data = penguins,
-    refresh = 0 # To omit progress reports
+fit_peng1 <- brm(
+    formula = body_mass_kg ~ species,
+    data = penguins
 )
 ```
+
+The first time it sees a model, `brm()` compiles the code, i.e., it uses the
+C++ toolchain to translate the code into efficient machinespeak. So, this first
+run seemed slow a few seconds, but rerunning this same model will be much
+faster (try it!). Think of `brm()` as a virtual chef that can cook almost
+anything you want but has to prepare the kitchen *after* you tell it what you
+want.
+
+By default, `brms` prints a lot of information related to the background work
+it does to fit models, including progress reports that signal how much more
+time it takes to run. In the code above, `refresh = 0` omits these reports.
