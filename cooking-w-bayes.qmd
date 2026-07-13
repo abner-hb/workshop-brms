@@ -1,0 +1,19 @@
+# Intermission: cooking with Bayes
+
+Welcome to the crash course on cooking with Bayes. Bayesian cuisine has many
+concepts that frequentist cooks may find exotic. We will learn and demistify a
+handful of these concepts, which will get us working with most regressions
+we want to fit.
+
+Any Bayesian model we want to fit will require the same ingredients:
+
++ Data $\bf{y}$, which here include dependent and independent variables in
+a regression.
++ A model with parameters (aka a likelihood) $\pi(\bf{y} \mid \theta)$ that
+describes how the variables in our data behave and relate to each other.
++ Plausible values of parameters (aka prior distribution) $\pi(\theta)$ that
+help us discard absurd data behaviors or relationships.
+
+Our goal is to learn from our data to obtain a more accurate range of plausible
+values for $\theta$. This new range of values is called "posterior
+distribution" and we can write it as $\pi(\theta \mid \bf{y})$.

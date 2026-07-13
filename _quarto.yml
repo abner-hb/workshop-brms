@@ -14,6 +14,7 @@ book:
     - index.qmd
     - getting-started.qmd
     - lin-reg-brms.qmd
+    - cooking-w-bayes.qmd
 
 format:
   html:
