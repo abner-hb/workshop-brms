@@ -1,11 +1,10 @@
 # Intermission: cooking with Bayes
 
 Welcome to the crash course on cooking with Bayes. Bayesian cuisine has many
-concepts that frequentist cooks may find exotic. We will learn and demistify a
-handful of these concepts, which will get us working with most regressions
-we want to fit.
+concepts that some may find strange or exotic. Demistifying a handful of these
+concepts which will allow us to prepare some delightful data analyses.
 
-Any Bayesian model we want to fit will require the same ingredients:
+Any Bayesian model we fit needs the same ingredients:
 
 + Data $\bf{y}$, which here include dependent and independent variables in
 a regression.
@@ -48,20 +47,26 @@ of times and record the numbers you observe each time. With enough rolls, you
 will get a good description of how often each possible number appears with
 these dice.
 
-As with the dice, we can repeatedly draw random values for $\theta$ by
-repeatedly drawing random values. If we respect the probabilities given by the
-product in Bayes' Theorem, the random values we draw will eventually describe
-the plausible values for $\theta$, i.e., its posterior distribution. With this
+As with the dice, we can learn about $\theta$ by repeatedly drawing random
+values to get a sample. If we follow the probabilities given by the product in
+Bayes' Theorem, the random values we draw will eventually describe the
+plausible values for $\theta$, i.e., its posterior distribution. With this
 strategy, we can ignore the fancy constant because it does not change the
 *relative* probabilities of the values we sample.
 
-In short, we can view most Bayesian computation as rolling some metaphorical
-dice and then using Bayes' theorem to transform these rolls into values that
-describe the plausible range of the parameters (or other quantities) we want to
-study.
+Thus, we can view Bayesian computation as rolling some metaphorical dice and
+then using Bayes' theorem to transform these rolls into values that describe
+the plausible range of the parameters (or other quantities) we want to study.
 
-Armed with this knowledge, we can return to the output of our regression for
-penguin weight by species:
+So far we know the ingredients and the recipe to cook our dish. Now all we need
+is a few details on how to use the knobs and buttons on our oven (`brms`).
+
+## How to use your oven
+
+From what we said above, we know that an intermediate goal when fitting a
+Bayesian model is to get a bunch of random draws to describe the parameters in
+our models. Let us return to the output of our regression for penguin weight by
+species:
 
 ```{r return to fit_peng1}
 library(brms)
@@ -72,10 +77,12 @@ fit_peng1 <- brm(
 )
 ```
 
-First, note that `brm()` actually obtains a collection of all the
-random draws we got for each of the parameters (the rolls of our metaphorical dice), shown in the image below. The colored histograms represent the random draws for each average penguin weight. The black dots are the estimated means
-of these random draws. And the black bars around the black dots represent
-95% *credibility* intervals of the average weights. These likely values look like this (ignore the code for now):
+First, note that `brm()` actually obtains a collection of all the random draws
+we got for each of the parameters. The image below shows some colored
+histograms that represent the random draws for each average penguin weight. The
+black dots are the estimated means of these histograms. And the black bars
+around the black dots represent 95% *credibility* intervals of the average
+weights.
 
 ```{r peng1 posteriors}
 #| code-fold: true
@@ -101,8 +108,69 @@ ggplot(posterior_means, aes(x = .epred, y = species, fill = species)) +
   theme(legend.position = "none")
 ```
 
-![Posteriors peng1](images/post-dist-peng1.png){fig-align="center" width=4.5in
+![Posterior distributions of average penguin weights](images/post-dist-peng1.png){fig-align="center" width=4.5in
 height=3.5in}
+
+Now let us revisit the model summary we saw before (reproduced here).
+
+```
+Family: gaussian
+  Links: mu = identity
+Formula: body_mass_kg ~ species
+   Data: penguins (Number of observations: 342)
+  Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup draws = 4000
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            3.70      0.04     3.63     3.77 1.00     3794     2739
+speciesChinstrap     0.03      0.07    -0.10     0.17 1.00     3977     2723
+speciesGentoo        1.38      0.06     1.27     1.49 1.00     3844     3151
+
+Further Distributional Parameters:
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     0.46      0.02     0.43     0.50 1.00     3943     2698
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+We are already familiar with `Estimate`, `Est.Error`, and `l-95% CI` and
+`u-95% CI`. But there are other, strange terms that need elaboration, like
+chain, iter, warmup, Rhat, and Bulk_ESS and Tail_ESS. Formal definitions of
+all these terms are complicated (*very* complicated), but an informal
+understanding is enough to fit almost all the models you need.
+
+I will not detail why or how, but in most Bayesian software each
+random draw needs to come from a larger sequence or **chain** of random draws.
+The first few random values of a chain are usually very far away from the
+probable values we want. This means that we have to let the chain **warmup**
+for a while before we can use its draws.
+
+Also, the draws from a given chain tend to be related, so they are not as
+informative as if they were independent. This leads to the concept of an
+**Effective Sample Size (ESS)**, a measure of the size of the sample we would
+have if our draws were independent. A higher ESS means means that our random
+draws are more informative, and in practice it recommended that the ESS for all
+parameters be at least 100 and ideally above 400.
+
+Finally, a chain is supposed to get draws for all the relevant values of the
+parameter of interest. However, with complicated models or difficult data,
+a chain can be slow down or even get stuck, depriving us of an accurate
+description of the posterior distribution. To check that we are getting all the
+relevant values, we should use multiple different chains, and we must check
+that the chains are all *converging* to the same random values (but not in the
+same order). **R-hat** (often styled as $\hat{R}$) is a convenient numerical
+diagnostic for chain convergence. An R-hat below 1.01 means that our chains
+converged well, while an R-hat above 1.01 signals convergence problems and,
+therefore, unreliable results.
+
+With `brm()` we can control how many *sequences* of random draws we
+use and how many draws to get from each sequence. These sequences have two weird
+mathematical properties
+
+
 
 
 
