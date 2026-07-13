@@ -9,11 +9,77 @@ Any Bayesian model we want to fit will require the same ingredients:
 
 + Data $\bf{y}$, which here include dependent and independent variables in
 a regression.
-+ A model with parameters (aka a likelihood) $\pi(\bf{y} \mid \theta)$ that
++ A model with parameters, aka a likelihood, $\pi(\bf{y} \mid \theta)$ that
 describes how the variables in our data behave and relate to each other.
-+ Plausible values of parameters (aka prior distribution) $\pi(\theta)$ that
-help us discard absurd data behaviors or relationships.
++ Plausible values of parameters before seeing the data, aka prior
+distribution, $\pi(\theta)$. This prior distribution can condense previous
+empirical work or preemptively disregard absurd behaviors or relationships.
 
 Our goal is to learn from our data to obtain a more accurate range of plausible
-values for $\theta$. This new range of values is called "posterior
-distribution" and we can write it as $\pi(\theta \mid \bf{y})$.
+values for $\theta$. This new range of values—the dish we want—is called
+posterior distribution and we can write it as $\pi(\theta \mid \bf{y})$. The
+recipe to obtain this posterior distribution is Bayes' theorem and is always
+the same:
+
+$$
+\begin{align*}
+    \pi(\theta \mid \bf{y}) =
+        \frac{\pi(\theta) \times \pi(\bf{y} \mid \theta)}
+        {\text{A fancy constant}}
+\end{align*}
+$$
+
+This formula states that we can get the plausible values for our parameters
+(i.e., distribution) after seeing our data by multiplying the two known
+components and dividing by some number.
+
+Our first impulse may be to do the math explicitly to get a specific formula.
+Unfortunately, the fancy constant is so fancy that it is impossible to compute
+in all but the simplest models. We could also try to approximate this formula
+with another, simpler formula that is easier to compute. This works sometimes
+but is often difficult and inaccurate.
+
+Figuring out how to actually use Bayes' theorem is not even remotely obvious,
+but we can gain some intuition with a short fable. Imagine that your good
+friend gambling Bob gifts you his favourite pair of loaded dice, but leaves
+before telling you how they work. How could you find out which numbers to bet
+on when you roll the dice? A simple solution is to roll these dice a whole lot
+of times and record the numbers you observe each time. With enough rolls, you
+will get a good description of how often each possible number appears with
+these dice.
+
+As with the dice, we can repeatedly draw random values for $\theta$ by
+repeatedly drawing random values. If we respect the probabilities given by the
+product in Bayes' Theorem, the random values we draw will eventually describe
+the plausible values for $\theta$, i.e., its posterior distribution. With this
+strategy, we can ignore the fancy constant because it does not change the
+*relative* probabilities of the values we sample.
+
+In short, we can view most Bayesian computation as rolling some
+abstract dice and then using Bayes' theorem to transform these rolls into
+values that describe the plausible range of the parameters (or other
+quantities) we want to study. Armed with this knowledge, we can return to the
+output of our regression for penguin weight by species:
+
+
+
+<!--
+Similarly, we can learn the plausible values of $\theta$ by repeatedly
+drawing random values that respect the probabilities given by the product
+in Bayes' Theorem. With this strategy, we can ignore the fancy constant because
+it does not change the *relative* probabilities of the values we sample. Also,
+we do not have to fully compute the full product
+$\pi(\theta) \times \pi(\bf{y} \mid \theta)$; instead, we can compute only one
+number at the time whenever we draw a random value, which is actually faster in
+many cases.
+
+A similar idea reveals the usefulness of Bayes' theorem. Remember that $\pi(\theta)$
+$\pi(\bf{y} \mid \theta)$ are probabilites, so their product is also a
+probability. This means that, instead of computing,
+
+In more formal terms, remember that $\pi(\theta)$
+$\pi(\bf{y} \mid \theta)$ are probabilites, so their product is also a
+probability. This means that, instead of computing,
+
+-->
+
