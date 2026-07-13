@@ -1,4 +1,4 @@
-# Linear regression in brms
+# A first regression in brms
 
 `brms` allows us to add or remove parts of a model as needed, so our code is
 only as complicated as the model we want to fit. Simple code for simple
