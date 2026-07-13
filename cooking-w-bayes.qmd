@@ -55,11 +55,54 @@ the plausible values for $\theta$, i.e., its posterior distribution. With this
 strategy, we can ignore the fancy constant because it does not change the
 *relative* probabilities of the values we sample.
 
-In short, we can view most Bayesian computation as rolling some
-abstract dice and then using Bayes' theorem to transform these rolls into
-values that describe the plausible range of the parameters (or other
-quantities) we want to study. Armed with this knowledge, we can return to the
-output of our regression for penguin weight by species:
+In short, we can view most Bayesian computation as rolling some metaphorical
+dice and then using Bayes' theorem to transform these rolls into values that
+describe the plausible range of the parameters (or other quantities) we want to
+study.
+
+Armed with this knowledge, we can return to the output of our regression for
+penguin weight by species:
+
+```{r return to fit_peng1}
+library(brms)
+options(brms.backend = "cmdstanr")
+fit_peng1 <- brm(
+    formula = body_mass_kilograms ~ species,
+    data = penguins
+)
+```
+
+First, note that `brm()` actually obtains a collection of all the
+random draws we got for each of the parameters (the rolls of our metaphorical dice), shown in the image below. The colored histograms represent the random draws for each average penguin weight. The black dots are the estimated means
+of these random draws. And the black bars around the black dots represent
+95% *credibility* intervals of the average weights. These likely values look like this (ignore the code for now):
+
+```{r peng1 posteriors}
+#| code-fold: true
+#| title: Posteriors of average weights
+#| fig-align: center
+#| fig-width: 4.5
+#| fig-height: 3.5
+library(tidybayes)
+library(ggplot2)
+# Create a reference grid with one row per species
+species_grid <- data.frame(species = c("Adelie", "Chinstrap", "Gentoo"))
+# Extract posterior draws of the mean (epred = expected prediction)
+posterior_means <- add_epred_draws(species_grid, fit_peng1)
+ggplot(posterior_means, aes(x = .epred, y = species, fill = species)) +
+  stat_histinterval(breaks = 20, point_interval = "mean_qi", .width = 0.95) +
+  scale_x_continuous(breaks = seq(3.4, 5.6, by = 0.2)) +
+  labs(
+    title = "Chinstrap and Gentoo have similar average\nweights",
+    x = "Average weight (kilograms)",
+    y = "Species"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none")
+```
+
+![Posteriors peng1](images/post-dist-peng1.png){fig-align="center" width=4.5in
+height=3.5in}
 
 
 
