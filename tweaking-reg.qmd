@@ -91,7 +91,7 @@ number of random draws we would have if our iterations were independent.
 distribution; the number we see in the `Estimate` column. And **Tail ESS**
 measures the reliability of the tails of the posterior distribution; the
 numbers in columns `l-95% CI` and `u-95% CI`. So, having both a high
-**Bulk ESS** and high **Tail ESS** suggest that our histograms as a whole are
+Bulk ESS and high Tail ESS suggest that our histograms as a whole are
 reliable.
 
 We want the ESS to be high enough to get stable estimates of uncertainty. In
@@ -101,7 +101,7 @@ penguin model above has way more ESS than this; the lowest Bulk ESS is 3794
 (for the `Intercept`) and the lowest Tail ESS is 2698 (for the standard
 deviation `sigma`).
 
-Finally, a chain is supposed to get draws for all the relevant values of the
+Finally, our chain is supposed to get draws for all the relevant values of the
 parameter of interest. However, with complicated models or difficult data,
 a chain can get stuck in a few specific values, depriving us of an accurate
 description of the posterior distribution. To check that we are getting all the
@@ -112,10 +112,12 @@ random values.
 variance of numbers within the chains to the variance across different chains.
 If the chains converged, these two variances should be roughly the same, so
 R-hat would equal 1. If the chains did not converge, the variances would
-differ and R-hat would be higher than 1. In practice, an R-hat above 1.01
-signals convergence problems and, therefore, unreliable results; an R-hat
-below 1.01 means that our chains converged well, so our results are reliable.
-Our penguin model shows that the R-hat for all parameters is practically 1.
-C'est magnifique!
+differ and R-hat would be higher than 1.
 
-Now that we know what the knobs and buttons do, we can start tweaking our oven.
+In practice, an R-hat above 1.01 signals convergence problems and, therefore,
+unreliable results; an R-hat below 1.01 means that our chains converged well,
+so our results are reliable. Our penguin model shows that the R-hat for all
+parameters is practically 1. C'est magnifique!
+
+## Turning knobs and pushing buttons
+
