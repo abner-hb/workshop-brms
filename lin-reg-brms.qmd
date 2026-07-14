@@ -11,7 +11,7 @@ and Gentoo.
 ```{r load penguin data}
 #| eval: true
 data(penguins)
-penguins$body_mass_kilograms <- penguins$body_mass / 1000
+penguins$body_mass_kg <- penguins$body_mass / 1000
 ```
 
 To start, let us compare the weights of these three groups. The histogram
@@ -26,7 +26,7 @@ Adelie and Chinstrap tend to have similar weights.
 #| fig-width: 4
 #| fig-height: 4
 library(ggplot2)
-ggplot(penguins, mapping = aes(x = body_mass_kilograms)) +
+ggplot(penguins, mapping = aes(x = body_mass_kg)) +
     geom_histogram(binwidth = 0.2, color = "black", fill = "darkorange") +
     facet_wrap(~species, nrow = 3, ncol = 1) +
     labs(
@@ -52,7 +52,7 @@ with values "Adelie", "Chinstrap", and "Gentoo". Run this code and ignore its le
 library(brms)
 options(brms.backend = "cmdstanr")
 fit_peng1 <- brm(
-    formula = body_mass_kilograms ~ species,
+    formula = body_mass_kg ~ species,
     data = penguins
 )
 ```
