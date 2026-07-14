@@ -1,10 +1,10 @@
 # Intermission: cooking with Bayes
 
-Welcome to the crash course on cooking with Bayes. Bayesian cuisine has many
-concepts that some may find strange or exotic. Demistifying a handful of these
-concepts which will allow us to prepare some delightful data analyses.
+Bayesian cuisine has many concepts that some may find strange or exotic.
+Demistifying a handful of these concepts will allow us to prepare some
+delightful data analyses.
 
-Any Bayesian model we fit needs the same ingredients:
+All Bayesian models need the same ingredients:
 
 + Data $\bf{y}$, which here include dependent and independent variables in
 a regression.
@@ -12,31 +12,26 @@ a regression.
 describes how the variables in our data behave and relate to each other.
 + Plausible values of parameters before seeing the data, aka prior
 distribution, $\pi(\theta)$. This prior distribution can condense previous
-empirical work or preemptively disregard absurd behaviors or relationships.
+empirical work or disregard absurd behaviors or relationships.
 
 Our goal is to learn from our data to obtain a more accurate range of plausible
-values for $\theta$. This new range of values—the dish we want—is called
-posterior distribution and we can write it as $\pi(\theta \mid \bf{y})$. The
-recipe to obtain this posterior distribution is Bayes' theorem and is always
-the same:
+values for $\theta$. This new range of values---the dish we want---is called
+posterior distribution and we can write it as $\pi(\theta \mid \bf{y})$. Bayes'
+theorem gives us the recipe:
 
 $$
 \begin{align*}
     \pi(\theta \mid \bf{y}) =
         \frac{\pi(\theta) \times \pi(\bf{y} \mid \theta)}
-        {\text{A fancy constant}}
+        {\text{A fancy constant}}.
 \end{align*}
 $$
 
-This formula states that we can get the plausible values for our parameters
-(i.e., distribution) after seeing our data by multiplying the two known
-components and dividing by some number.
-
 Our first impulse may be to do the math explicitly to get a specific formula.
-Unfortunately, the fancy constant is so fancy that it is impossible to compute
-in all but the simplest models. We could also try to approximate this formula
-with another, simpler formula that is easier to compute. This works sometimes
-but is often difficult and inaccurate.
+Unfortunately, the fancy constant is an ugly integral that is impossible to
+compute in all but the simplest models. We could also try to approximate this
+formula with another, simpler formula that is easier to compute. This works
+sometimes but is often difficult and inaccurate.
 
 Figuring out how to actually use Bayes' theorem is not even remotely obvious,
 but we can gain some intuition with a short fable. Imagine that your good
@@ -63,9 +58,7 @@ is a few details on how to use the knobs and buttons on our oven (`brms`).
 
 ## How to use your oven
 
-From what we said above, we know that an intermediate goal when fitting a
-Bayesian model is to get a bunch of random draws to describe the parameters in
-our models. Let us return to the output of our regression for penguin weight by
+Let us return to our model for learning about the average penguin weight by
 species:
 
 ```{r return to fit_peng1}
@@ -77,19 +70,14 @@ fit_peng1 <- brm(
 )
 ```
 
-First, note that `brm()` actually obtains a collection of all the random draws
-we got for each of the parameters. The image below shows some colored
-histograms that represent the random draws for each average penguin weight. The
-black dots are the estimated means of these histograms. And the black bars
-around the black dots represent 95% *credibility* intervals of the average
-weights.
+We now know fitting a Bayesian model will give us a bunch of random draws to describe the parameters of interest. `brm()` uses clever math and computing to get us these random draws whenever we fit a regression. The image below shows some colored histograms that represent these random draws ---i.e., the posterior distribution---of each average penguin weight. The black dots are the estimated means of these histograms and the black bars around the black dots represent 95% *credibility* intervals of the average weights.
 
 ```{r peng1 posteriors}
 #| code-fold: true
 #| title: Posteriors of average weights
 #| fig-align: center
-#| fig-width: 4.5
-#| fig-height: 3.5
+#| fig-width: 3.9
+#| fig-height: 3
 library(tidybayes)
 library(ggplot2)
 # Create a reference grid with one row per species
@@ -108,10 +96,10 @@ ggplot(posterior_means, aes(x = .epred, y = species, fill = species)) +
   theme(legend.position = "none")
 ```
 
-![Posterior distributions of average penguin weights](images/post-dist-peng1.png){fig-align="center" width=4.5in
-height=3.5in}
+![Posterior distributions of average penguin weights](images/post-dist-peng1.png){fig-align="center" width=3.9in
+height=3in}
 
-Now let us revisit the model summary we saw before (reproduced here).
+Now let us revisit the model summary we saw before:
 
 ```
 Family: gaussian
@@ -136,42 +124,57 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
-We are already familiar with `Estimate`, `Est.Error`, and `l-95% CI` and
-`u-95% CI`. But there are other, strange terms that need elaboration, like
-chain, iter, warmup, Rhat, and Bulk_ESS and Tail_ESS. Formal definitions of
-all these terms are complicated (*very* complicated), but an informal
-understanding is enough to fit almost all the models you need.
+We are already familiar with Estimate, Est.Error, and l-95% CI and u-95% CI.
+But other terms need elaboration, like chain, iter, warmup, Rhat, and Bulk_ESS
+and Tail_ESS. The formal definitions of these terms are complicated (*very*
+complicated), but an informal understanding is enough to fit almost all the
+models you need.
 
-I will not detail why or how, but in most Bayesian software each
-random draw needs to come from a larger sequence or **chain** of random draws.
-The first few random values of a chain are usually very far away from the
-probable values we want. This means that we have to let the chain **warmup**
-for a while before we can use its draws.
+To get each random draw, `brms` goes through a computational process that it
+calls an **iteration**. The random draws we get form a sequence or **chain**.
+The first few draws are usually too inaccurate to be useful, so we have to let
+the chain discard some **warmup** iterations before we get useful values.
 
-Also, the draws from a given chain tend to be related, so they are not as
-informative as if they were independent. This leads to the concept of an
-**Effective Sample Size (ESS)**, a measure of the size of the sample we would
-have if our draws were independent. A higher ESS means means that our random
-draws are more informative, and in practice it recommended that the ESS for all
-parameters be at least 100 and ideally above 400.
+Our penguin regression above used four chains, each of which had 2000
+iterations---including warmup iterations, which we discard. Combining the
+post-warmup draws from all four chains gives us 4000 useful draws in total.
+
+For complicated mathematical reasons, draws from a given chain tend to be
+related to each other, so they are not as informative as if they were
+independent. The **Effective Sample Size (ESS)** measures the equivalent
+number of random draws we would have if our iterations were independent.
+**Bulk ESS** measures the reliability of the center (or bulk) of our posterior
+distribution; the number we see in the `Estimate` column. And **Tail ESS**
+measures the reliability of the tails of the posterior distribution; the
+numbers in columns `l-95% CI` and `u-95% CI`. So, having both a high
+**Bulk ESS** and high **Tail ESS** suggest that our histograms as a whole are
+reliable.
+
+We want the ESS to be high enough to get stable estimates of uncertainty. In
+practice, this means that he ESS for all parameters should be above 400 in
+most models, or at least 100 for special parameters in complicated models. Our
+penguin model above has way more ESS than this; the lowest Bulk ESS is 3794
+(for the `Intercept`) and the lowest Tail ESS is 2698 (for the standard
+deviation `sigma`).
 
 Finally, a chain is supposed to get draws for all the relevant values of the
 parameter of interest. However, with complicated models or difficult data,
-a chain can be slow down or even get stuck, depriving us of an accurate
+a chain can get stuck in a few specific values, depriving us of an accurate
 description of the posterior distribution. To check that we are getting all the
-relevant values, we should use multiple different chains, and we must check
-that the chains are all *converging* to the same random values (but not in the
-same order). **R-hat** (often styled as $\hat{R}$) is a convenient numerical
-diagnostic for chain convergence. An R-hat below 1.01 means that our chains
-converged well, while an R-hat above 1.01 signals convergence problems and,
-therefore, unreliable results.
+relevant values, we should check that multiple chains *converge* to the same
+random values.
 
-With `brm()` we can control how many *sequences* of random draws we
-use and how many draws to get from each sequence. These sequences have two weird
-mathematical properties
+**R-hat** (often styled $\hat{R}$) diagnoses convergence by comparing the
+variance of numbers within the chains to the variance across different chains.
+If the chains converged, these two variances should be roughly the same, so
+R-hat would equal 1. If the chains did not converge, the variances would
+differ and R-hat would be higher than 1. In practice, an R-hat above 1.01
+signals convergence problems and, therefore, unreliable results; an R-hat
+below 1.01 means that our chains converged well, so our results are reliable.
+Our penguin model shows that the R-hat for all parameters is practically 1.
+C'est magnifique!
 
-
-
+Now that we know what the knobs and buttons do, we can start tweaking our oven.
 
 
 <!--
