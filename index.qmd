@@ -9,8 +9,8 @@ Last modified: `r Sys.Date()`
 These self-contained notes are intended for those that want a flexible R
 library to fit and visualize regressions and are willing or eager to do so with
 a Bayesian approach. To benefit from these notes it is necessary to know how
-functions, vectors, and data frames work in R. It is convenient but *not*
-necessary to be familiar with regression concepts and/or with Bayesian
+functions, vectors, and data frames work in R, and to be familiar with linear
+regression. It is convenient but *not* necessary to be familiar with Bayesian
 statistics.
 
 ## Creation of this document {.unnumbered}
