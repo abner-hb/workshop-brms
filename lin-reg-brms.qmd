@@ -64,11 +64,10 @@ regression will be much faster (try it!). Think of `brm()` as a virtual chef
 that can cook many things but has to prepare the kitchen *after* we tell it
 what we want.
 
-Now we can ask the model what it thinks the average weights are. `brm()`
-works a lot behind the scenes to obtain probable values for our model
-parameters. Understanding where the values above come from requires a taste of
-Bayesian statistics that we will savour soon. For now, though, we can summarize
-our results as follows, focusing on the table of regression coefficients.
+Now we can ask the model what it thinks the average weights are. Understanding
+where these values above come from requires a taste of Bayesian statistics that
+we will savour soon. For now, though, we can summarize our results as follows,
+focusing on the table of regression coefficients.
 
 ```{r summary of fit_peng1}
 #| echo: true
@@ -101,9 +100,9 @@ scale reduction factor on split chains (at convergence, Rhat = 1).
 The `Intercept` represents the average weight of our Adelie penguins, while
 `speciesChinstrap` and `speciesGentoo` represent the differences of the
 averages of Chinstrap and Gentoo relative to Adelie. The column `Estimate`
-represents our best notion of the values of the coefficients, `Est.Error`
-represents the margin of error of this best notion, and `l-95% CI` and
-`u-95% CI` represent the limits of the *credibility* interval (similar to a 
+represents a clever guess of the values of the coefficients, `Est.Error`
+represents the margin of error of this guess, and `l-95% CI` and
+`u-95% CI` represent the limits of the *credibility* interval (similar to a
 *confidence* interval).
 
 Based on these results, we estimate that both Adelie and Chinstrap weight
@@ -114,11 +113,6 @@ weights lie within 0.92 kilograms of their group average.
 
 The summaries we just saw suffice to understand the elementary aspects of many
 regression models. But the power and versatility of `brms` will be easier to
-grasp if we devote a little time to learning the "bayesics" of Bayesian
+wield if we devote a little time to learning the "bayesics" of Bayesian
 statistics and computation. We just learned how to turn on the oven. A bit more
 effort and we can learn to control the heat.
-
-
-By default, `brms` prints a lot of information related to the backilogramsround work
-it does to fit models, including progress reports that signal how much more
-time it takes to run. In the code above, `refresh = 0` omits these reports.
