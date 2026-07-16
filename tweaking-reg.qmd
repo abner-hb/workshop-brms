@@ -319,4 +319,5 @@ ggplot(
 
 ![](images/bill-len-plt.png){#fig-bill-reg fig-align="center" width=600}
 
-So, adjusting for species and weight, we estimate the bills of male penguins are about $1.26$ mm longer on average than the bills of female penguins.
+So, if we took two penguins of the same weight and species, we would expect
+the male penguin to have a bill 1.26 mm longer than the female penguin.
