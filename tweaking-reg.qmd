@@ -285,47 +285,11 @@ takes to draw them. 600 draws are usually precise and fast enough to plot and
 summarize results; we can use all the draws only when presenting the final
 results of an analysis.
 
-We can look at the many lines that `add_epred_draws()`:
-
-```{r plot multiple regression lines}
-#| code-fold: true
-library(dplyr)
-ggplot(
-  data = posterior_lines |>
-    group_by(sex, species) |>
-    filter(.draw %in% sample(unique(.draw), 100)) |>
-    ungroup(),
-  mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex) # group removed from here
-) +
-  geom_line(
-    aes(group = interaction(.draw, sex)), # group specified only for this layer
-    alpha = 0.05
-  ) +
-  geom_point(
-    data = penguins,
-    aes(x = bm_kg_ctr + bm_kg_mean, y = bill_len, color = sex),
-    alpha = 0.5,
-    size = 1
-  ) +
-  facet_wrap(~species) +
-  labs(
-    title = "Male penguins have slightly longer bills than females",
-    x = "Body Mass (kg)",
-    y = "Bill Length (mm)",
-    color = "Sex"
-  ) +
-  theme_bw() +
-  theme(legend.position = "bottom")
-```
-
-![](images/reg-lines-bill-len.png){#fig-bill-reg1 fig-align="center" width=600}
-
-A more elegant plot with simpler code combines `ggplot` with the
-`stat_lineribbon()` function from the `tidybayes` library. `stat_lineribbon()`
-takes all the regression draws we saved in `posterior_lines` and, with some
-trickery, transforms them into a smooth plot. The thick lines represent the
-means and the shaded regions represent the credibility intervals of the average
-bill length at each weight.
+Finally, we can combine `ggplot` with the `tidybayes` library to create a plot.
+`stat_lineribbon()` takes all the regression draws we saved in
+`posterior_lines` and, with some trickery, transforms them into a smooth plot.
+The thick lines represent the means and the shaded regions represent the
+credibility intervals of the average bill length at each weight.
 
 
 ```{r plot results from bill_len_fit1}
@@ -335,8 +299,8 @@ ggplot(
   data = posterior_lines,
   mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex, fill = sex)
 ) +
-  stat_lineribbon(.width = 0.95, point_interval = "mean_qi", alpha = 0.3) +
-  # Add observed data to plots
+  stat_lineribbon(point_interval = "mean_qi", .width = c(0.66, 0.9), alpha = 0.3) +
+  # OPTIONAL: Add observed data to plots
   geom_point(
     data = penguins,
     aes(x = bm_kg_ctr + bm_kg_mean, y = bill_len),
@@ -355,6 +319,10 @@ ggplot(
   theme(legend.position = "bottom")
 ```
 
-![](images/bill-len-plt.png){#fig-bill-reg2 fig-align="center" width=600}
+![](images/bill-len-plt.png){#fig-bill-reg2 fig-align="center" width=500}
 
-
+In `stat_lineribbon()`, `point_interval` controls the type of estimates that
+the plot will show, with `"mean_qi"` referring to using a mean and quantiles
+for the credibility intervals. `.width` controls the quantiles we use to
+delineate the credibility intervals. Using `c(0.66, 0.9)` uses quantiles for
+66% and 90% credibility.
