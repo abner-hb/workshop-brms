@@ -36,11 +36,10 @@ sometimes but is often difficult and inaccurate.
 Figuring out how to actually use Bayes' theorem is not even remotely obvious,
 but we can gain some intuition with a short fable. Imagine that your good
 friend gambling Bob gifts you his favourite pair of loaded dice, but leaves
-before telling you how they work. How could you find out which numbers to bet
-on when you roll the dice? A simple solution is to roll these dice a whole lot
-of times and record the numbers you observe each time. With enough rolls, you
-will get a good description of how often each possible number appears with
-these dice.
+before telling you how they work. How could you find out which numbers are the
+good ones? A simple solution is to roll these dice a whole lot of times and
+record the numbers you observe each time. With enough rolls, you will get a
+good description of how often each possible number appears with these dice.
 
 As with the dice, we can learn about $\theta$ by repeatedly drawing random
 values to get a sample. If we follow the probabilities given by the product in
