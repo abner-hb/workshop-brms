@@ -31,8 +31,8 @@ share code and help with other people even their models differ from ours.
 
 Making `brms` work in our computer requires some preparation. First, updating
 R to its latest version will help our libraries work better with each other
-and with R itself. Installing brms with an older version of R may work, but is
-likely to cause problems later.
+and with R itself. Installing `brms` with an older version of R may work, but
+is likely to cause problems later.
 
 ### C++ toolchain
 
@@ -58,6 +58,13 @@ If not, install xcode (which may take a while) with
 ```
 xcode-select --install
 ```
+
+::: {.callout-warning}
+### Install toolchain before brms
+R would not complain if we installed `brms` *before* preparing the C++
+toolchain. But without the toolchain none of our models would run, so it is
+better to set it up in advance.
+:::
 
 ### Default version of brms
 
@@ -88,13 +95,6 @@ zBase          0.70      0.12     0.46     0.95 1.00      591     1080
 Trt1          -0.26      0.16    -0.58     0.05 1.00      699     1319
 zBase:Trt1     0.05      0.17    -0.29     0.38 1.00      681     1115
 ```
-
-::: {.callout-warning}
-### Install toolchain before brms
-R would not complain if we installed `brms` *before* preparing the C++
-toolchain. But without the toolchain none of our models would run, so it is
-better to set it up in advance.
-:::
 
 ### Faster brms with cmdstanr
 
@@ -142,3 +142,5 @@ fit1 <- brm(count ~ zAge + zBase * Trt + (1|patient),
             data = epilepsy, family = poisson())
 summary(fit1)
 ```
+
+A successful model run means a successful installation. `brms` is ready.
