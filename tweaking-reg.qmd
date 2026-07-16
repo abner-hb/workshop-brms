@@ -2,8 +2,11 @@
 
 ```{r load penguin data}
 #| echo: false
+#| include: false
 #| eval: true
 library(ggplot2)
+library(brms)
+options(brms.backend = "cmdstanr")
 data(penguins)
 penguins$body_mass_kg <- penguins$body_mass / 1000
 ```
@@ -14,8 +17,6 @@ Let us return to our model for learning about the average penguin weight by
 species:
 
 ```{r return to fit_peng1}
-library(brms)
-options(brms.backend = "cmdstanr")
 fit_peng1 <- brm(
     formula = body_mass_kg ~ species,
     data = penguins
@@ -48,7 +49,7 @@ ggplot(posterior_means, aes(x = .epred, y = species, fill = species)) +
   theme(legend.position = "none")
 ```
 
-![Posterior distributions of average penguin weights](images/post-dist-peng1.png){fig-align="center" width=3.9in
+![Posterior distributions of average penguin weights](images/post-dist-peng1.png){#fig-post-peng1 fig-align="center" width=3.9in
 height=3in}
 
 Now let us revisit the model summary we saw before:
@@ -76,8 +77,11 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
-We are already familiar with Estimate, Est.Error, and l-95% CI and u-95% CI.
-But other terms need elaboration, like chain, iter, warmup, Rhat, and Bulk_ESS
+The columns we met before capture different parts of the histograms we saw in
+@fig-post-peng1. `Estimate` is the mean of the histogram (shown as black
+dots), `Est.Error` is the standard error of these histograms, and l-95% CI and
+u-95% CI are the 5% and 95% quantiles of the histograms (shown as black bars).
+Other terms need elaboration, like chain, iter, warmup, Rhat, and Bulk_ESS
 and Tail_ESS. The formal definitions of these terms are complicated (*very*
 complicated), but an informal understanding is enough to fit almost all the
 models we need.
@@ -96,11 +100,11 @@ related to each other, so they are not as informative as if they were
 independent. The **effective sample size (ESS)** measures the equivalent
 number of random draws we would have if our iterations were independent. A
 higher ESS means more reliable estimates. **Bulk ESS** measures the reliability
-of the center (or bulk) of our posterior distribution; the number we see in the
-`Estimate` column. **Tail ESS** measures the reliability of the tails of the
-posterior distribution; the numbers in columns `l-95% CI` and `u-95% CI`. So,
-having both a high Bulk ESS and high Tail ESS suggest that our histograms as a
-whole are reliable.
+of the center (or bulk) of our posterior distribution, e.g., the number we see
+in the `Estimate` column. **Tail ESS** measures the reliability of the tails of
+the posterior distribution, e.g., the numbers in columns `l-95% CI` and
+`u-95% CI`. So, having both a high Bulk ESS and high Tail ESS suggest that our
+histograms as a whole are reliable.
 
 We want the effective sample size to be high enough to get stable estimates of
 uncertainty. In practice, this means that the ESS for all parameters should be
@@ -132,14 +136,10 @@ parameters is practically 1. C'est magnifique!
 
 Our success in comparing penguins' weight by species has made us more curious
 about these lovely amigos. Let us consider now, how much longer or shorter
-are the bills of male penguins compared to female penguins on average? To
-answer this question, we could fit a regression with bill length (in
-milimiters) as the dependent variable and sex as the independent variable. But
-bill length may be related to the size of the penguins, which in turn changes
-by sex and species. So, to separate all these associations, we can add weight
-to our regression as a proxy for size.
-
-One way to visualize our model is below:
+are the bills of male penguins compared to female penguins on average? Before
+we fit a regression, consider that bill length may be related to the size of
+the penguins, which in turn changes by sex and species. We can visualize these
+associations below:
 
 ```{r plot bill length by sex and species}
 #| code-fold: true
@@ -153,27 +153,29 @@ ggplot(
   mapping = aes(x = body_mass_kg, y = bill_len, color = sex)
 ) +
   geom_point() +
-  labs(title = "ASDGF", x = "Body mass (kg)", y = "Bill length (mm)") +
+  labs(title = "Weight is higher for males and increases with weight", x = "Body mass (kg)", y = "Bill length (mm)") +
   theme_bw() +
   facet_wrap(~species, nrow = 1) +
   theme(legend.position = "bottom")
 ```
 
-Since we now know about chains and iterations, we can change them to fit our
-model more efficiently. By default, `brms` uses 4 chains, each with 2000 total
-iterations of which half are for warmup. Our model for bill length is
-relatively simple, so let's try saving some computer time by using fewer
-iterations per chain. And let us be cool by having `brms` fit all the chains
-in parallel rather than one after the other.
-
-To make our model parameters easier to interpret, we will recenter weight
-(`body_mass_kg`) around its overall mean of 4.2 kg.
+We could fit a regression with bill length (in milimiters) as the dependent
+variable, using sex as the independent variable and adding weight as a proxy
+for size. To make our model parameters easier to interpret, we will recenter
+weight (`body_mass_kg`) around its overall mean of 4.2 kg.
 
 ```{r center covariates in bill_len_fit1}
 #| eval: true
 penguins$bm_kg_ctr <- penguins$body_mass_kg -
   mean(penguins$body_mass_kg, na.rm = TRUE)
 ```
+
+We can fit our model more efficiently by changing the number of chains and
+iterations. By default, `brms` uses 4 chains, each with 2000 total iterations
+of which half are for warmup. Our model for bill length is relatively simple,
+so let's try saving some computer time by using fewer iterations per chain. And
+let us be cool by having `brms` fit all the chains in parallel rather than one
+after the other.
 
 <!--
 During workshop, purposely start with too few iterations to illustrate problems
@@ -196,10 +198,12 @@ discard at the beginning. `iter` (short for iterations) controls the
 total number of random draws *per chain*, which includes the warmup. `cores`
 controls the number of mini-brains in our computer that R will occupy. Each
 chain runs in one core, so with four cores we can run four chains
-simultaneously. We never need more cores than chains, but we may need to use
-fewer cores if our computer is small or has little memory.
+simultaneously. We never need more cores than chains, and we can not use more
+cores than our computer has available. In practice, ask for at most one core
+less than those available in your computer; the extra core will run everything
+else (e.g., internet browsers or Excel).
 
-The regression summary (see below) shows that the effective sample sizes for
+The regression summary below shows that the effective sample sizes for
 all parameters are well above the minimum threshold of 400, and all R-hats are
 equal to 1. And since R did not show any errors or concerning warnings, we can
 trust that our model ran appropriately.
@@ -209,40 +213,40 @@ summary(bill_len_fit1)
 ```
 
 ```
-Warning message:
-Rows containing NAs were excluded from the model.
  Family: gaussian
   Links: mu = identity
-Formula: bill_len ~ sex + bm_kg_ctr
+Formula: bill_len ~ sex + species + bm_kg_ctr
    Data: penguins (Number of observations: 333)
   Draws: 4 chains, each with iter = 800; warmup = 400; thin = 1;
          total post-warmup draws = 1600
 
 Regression Coefficients:
-          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept    43.35      0.36    42.66    44.07 1.00     1584     1306
-sexmale       1.26      0.55     0.20     2.33 1.00     1628     1183
-bm_kg_ctr     3.67      0.33     3.03     4.33 1.00     1428     1021
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept           38.42      0.38    37.63    39.15 1.00     1096      936
+sexmale              2.55      0.35     1.85     3.22 1.00     1143     1123
+speciesChinstrap     9.96      0.32     9.34    10.59 1.00     1766      994
+speciesGentoo        6.30      0.59     5.12     7.46 1.00     1044      981
+bm_kg_ctr            1.73      0.38     0.96     2.50 1.00     1069     1004
 
 Further Distributional Parameters:
       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     4.41      0.17     4.09     4.76 1.00     1623     1215
+sigma     2.27      0.09     2.10     2.44 1.00     1632     1145
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
-Interpreting the regression coefficients is a bit more difficult now that we
-have two explanatory variables, one categorical and one numerical. It is
-easier to plot the results using a few convenient libraries. First we define
-the coordinates that we want to see, then we ask the model for its inferences
-at these coordinates, and then we ask R to paint a plot with these results.
+The coefficient for `sexmale` tells us that, if we took two penguins of the
+same species and average weight, we would expect the male penguin to have a
+bill that is between 1.85 and 3.22 mm longer on average than the female
+penguin.
 
-`expand.grid()` can build a data frame with the coordinates we want to plot
-results for. We fill this function with the names and values of the variables
-we want to get. `expand.grid()` will then create all possible combinations
-of the values of these variables. The code to do this is shown below.
+A plot will help us visualize other regression results. First we define the
+coordinates that we want to see. `expand.grid()` can build a data frame with
+the coordinates we want to plot results for. We fill this function with the
+names and values of the variables we want to get. `expand.grid()` will then
+create all possible combinations of the values of these variables.
 
 ```{r grid of values for sex and species}
 pred_grid <- expand.grid(
@@ -257,12 +261,10 @@ pred_grid <- expand.grid(
 head(pred_grid)
 ```
 
-
 Now we can combine the results from our model `bill_len_fit1` with the values
 in `pred_grid` to paint regression values at these coordinates.
-`add_epred_draws()` fills our regression many times, each time with a different
-draw we got from `brm()`. Then, `add_epred_draws()` computes the average of our
-dependent variable (bill length) based on all these regression draws. Finally,
+`add_epred_draws()` uses the draws we got from `brm()` to compute many
+plausible averages of our dependent variable (bill length) many times. Finally,
 all these results are arranged in a format that is easy to plot with `ggplot`
 and other libraries. Luckily, the code to execute this rather involved process
 is blissfully simple:
@@ -271,23 +273,59 @@ is blissfully simple:
 library(tidybayes)
 posterior_lines <- add_epred_draws(
   newdata = pred_grid,
-  object = bill_len_fit1,
-  ndraws = 800
+  object = bill_len_fit1
 )
 ```
 
 We can read the code above as "for each point of interest in `pred_grid`, we
 want `ndraws` draws from `bill_len_fit1`". Omitting `ndraws` will ask
-`add_epred_draws` to use all available draws in `bill_len_fit1`. Using more
+`add_epred_draws()` to use all available draws in `bill_len_fit1`. Using more
 draws increases the precision of the plots we paint, but also the time it
-takes to draw them. I have found that 600 draws are precise and fast enough
-to analyze my data, and only use all the draws when presenting the final
+takes to draw them. 600 draws are usually precise and fast enough to plot and
+summarize results; we can use all the draws only when presenting the final
 results of an analysis.
 
-Finally, we can combine `ggplot` with the `stat_lineribbon()` function from
-the `tidybayes` library. `stat_lineribbon()` takes all the regression draws we
-saved in `posterior_lines` and, with some trickery, transforms them into a smooth plot. The thick lines represents the point estimates and the shaded regions represent the credibility intervals of the average bill length at each
-weight.
+We can look at the many lines that `add_epred_draws()`:
+
+```{r plot multiple regression lines}
+#| code-fold: true
+library(dplyr)
+ggplot(
+  data = posterior_lines |>
+    group_by(sex, species) |>
+    filter(.draw %in% sample(unique(.draw), 100)) |>
+    ungroup(),
+  mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex) # group removed from here
+) +
+  geom_line(
+    aes(group = interaction(.draw, sex)), # group specified only for this layer
+    alpha = 0.05
+  ) +
+  geom_point(
+    data = penguins,
+    aes(x = bm_kg_ctr + bm_kg_mean, y = bill_len, color = sex),
+    alpha = 0.5,
+    size = 1
+  ) +
+  facet_wrap(~species) +
+  labs(
+    title = "Male penguins have slightly longer bills than females",
+    x = "Body Mass (kg)",
+    y = "Bill Length (mm)",
+    color = "Sex"
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+![](images/reg-lines-bill-len.png){#fig-bill-reg1 fig-align="center" width=600}
+
+A more elegant plot with simpler code combines `ggplot` with the
+`stat_lineribbon()` function from the `tidybayes` library. `stat_lineribbon()`
+takes all the regression draws we saved in `posterior_lines` and, with some
+trickery, transforms them into a smooth plot. The thick lines represent the
+means and the shaded regions represent the credibility intervals of the average
+bill length at each weight.
 
 
 ```{r plot results from bill_len_fit1}
@@ -297,7 +335,7 @@ ggplot(
   data = posterior_lines,
   mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex, fill = sex)
 ) +
-  stat_lineribbon(.width = 0.95, alpha = 0.3) +
+  stat_lineribbon(.width = 0.95, point_interval = "mean_qi", alpha = 0.3) +
   # Add observed data to plots
   geom_point(
     data = penguins,
@@ -317,7 +355,6 @@ ggplot(
   theme(legend.position = "bottom")
 ```
 
-![](images/bill-len-plt.png){#fig-bill-reg fig-align="center" width=600}
+![](images/bill-len-plt.png){#fig-bill-reg2 fig-align="center" width=600}
 
-So, if we took two penguins of the same weight and species, we would expect
-the male penguin to have a bill 1.26 mm longer than the female penguin.
+
