@@ -1,6 +1,6 @@
 # Tweaking regressions with brms
 
-```{r load penguin data}
+```{r Load libraries and data}
 #| code-summary: "Load libraries and data"
 #| code-fold: true
 #| eval: true
@@ -77,13 +77,12 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
-The columns we met before capture different parts of the histograms we saw in
-@fig-post-peng1. `Estimate` is the mean of the histogram (shown as black
-dots), `Est.Error` is the standard error of these histograms, and l-95% CI and
-u-95% CI are the 5% and 95% quantiles of the histograms (shown as black bars).
-Other terms need elaboration, like chain, iter, warmup, Rhat, and Bulk_ESS
-and Tail_ESS. The formal definitions of these terms are complicated (*very*
-complicated), but an informal understanding is enough to fit almost all the
+The numerical summaries we met before have enriched their meaning: they capture
+different parts of the histograms in @fig-post-peng1. `Estimate` shows their mean (painted as black dots), `Est.Error` shows their standard errors, and l-95% CI and u-95% CI show their 5% and 95% quantiles of the histograms (painted as black bars).
+
+Other terms in the summary need elaboration, like chain, iter, warmup, Rhat,
+and Bulk_ESS and Tail_ESS. The formal definitions of these terms are *very*
+complicated, but an informal understanding is enough to fit almost all the
 models we need.
 
 The random draws we get form a sequence or **chain**. Also, to get each random
@@ -96,22 +95,22 @@ iterations---including warmup iterations, which we discard. Combining the
 post-warmup draws from all four chains gives us 4000 useful draws in total.
 
 For complicated mathematical reasons, draws from a given chain tend to be
-related to each other, so they are not as informative as if they were
+related to each other, which makes them less informative than if they were
 independent. The **effective sample size (ESS)** measures the equivalent
 number of random draws we would have if our iterations were independent. A
-higher ESS means more reliable estimates. **Bulk ESS** measures the reliability
-of the center (or bulk) of our posterior distribution, e.g., the number we see
-in the `Estimate` column. **Tail ESS** measures the reliability of the tails of
-the posterior distribution, e.g., the numbers in columns `l-95% CI` and
-`u-95% CI`. So, having both a high Bulk ESS and high Tail ESS suggest that our
-histograms as a whole are reliable.
+higher ESS means more reliable estimates. **Bulk ESS** measures the
+reliability of the center (or bulk) of our posterior distribution, e.g., the
+number we see in the `Estimate` column. **Tail ESS** measures the reliability
+of the tails of the posterior distribution, e.g., the numbers in columns
+`l-95% CI` and `u-95% CI`. So, having both a high Bulk ESS and high Tail ESS
+suggest that our histograms as a whole are reliable.
 
 We want the effective sample size to be high enough to get stable estimates of
 uncertainty. In practice, this means that the ESS for all parameters should be
-above 400 in most models, or at least 100 for special parameters in
-complicated models. Our penguin model above has way more ESS than this: the
-lowest Bulk ESS is 3794 (for the `Intercept`) and the lowest Tail ESS is 2698
-(for the standard deviation `sigma`).
+above 400 in most models, or at least 100 for special parameters in complicated
+models. Our penguin model above has way more ESS than this: the lowest Bulk ESS
+is 3794 (for the `Intercept`) and the lowest Tail ESS is 2698 (for the standard
+deviation `sigma`).
 
 Finally, our chain is supposed to get draws for all the relevant values of the
 parameter of interest. However, with complicated models or difficult data,
@@ -299,13 +298,6 @@ ggplot(
   mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex, fill = sex)
 ) +
   stat_lineribbon(point_interval = "mean_qi", .width = c(0.66, 0.9), alpha = 0.3) +
-  # OPTIONAL: Add observed data to plots
-  geom_point(
-    data = penguins,
-    aes(x = bm_kg_ctr + bm_kg_mean, y = bill_len),
-    alpha = 0.5,
-    size = 1
-  ) +
   facet_wrap(~species) +
   labs(
     title = "Male penguins have slightly longer bills than females",
@@ -315,7 +307,14 @@ ggplot(
     fill = "Sex"
   ) +
   theme_bw() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") +
+  # OPTIONAL: Add observed data to plots
+  geom_point(
+    data = penguins,
+    aes(x = bm_kg_ctr + bm_kg_mean, y = bill_len),
+    alpha = 0.5,
+    size = 1
+  )
 ```
 
 ![](images/bill-len-plt.png){#fig-bill-reg2 fig-align="center" width=500}
