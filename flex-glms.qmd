@@ -15,7 +15,7 @@ library(bayesplot)
 options(brms.backend = "cmdstanr")
 ```
 
-Let us consider some data from campers gathered by UCLA. In their words "the
+Let us consider some data from campers gathered by UCLA[^orig-pois]. In their words "the
 state wildlife biologists want to model how many fish are being caught by
 fishermen at a state park. Visitors are asked whether or not they have a
 camper, how many people were in the group, were there children in the group and
@@ -23,16 +23,86 @@ how many fish were caught. Some visitors do not fish, but there is no data on
 whether a person fished or not. Some visitors who did fish did not catch any
 fish [...]"[^ucla-data]
 
-[^ucla-data]: This description comes from https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/, though it is unclear if the data are real
+[^orig-pois]: This data analysis is adapted from Paul Bürkner's original, available in <https://cran.r-project.org/web/packages/brms/vignettes/brms_distreg.html>.
+
+[^ucla-data]: This description comes from <https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/>, though it is unclear if the data are real
 or simulated
 
 These data describe 250 groups of park visitors. For each group, we know how
-many fish they caught (`count`), how many total people were in the group (`persons`), how many of these were children (`child`), and whether the group
-brough a camper (`camper`).
+many fish they caught (`count`), how many total people were in the group
+(`persons`), how many of these were children (`child`), and whether the group
+brought a camper (`camper`).
 
-```{r Prepare data}
+```{r Prepare fisher data}
+#| eval: true
 fisher_df <- read.csv("https://paul-buerkner.github.io/data/fish.csv")
 fisher_df <- fisher_df[, c("persons", "child", "camper", "count")]
+names(fisher_df)[names(fisher_df) == "count"] <- "num_fish"
 summary(fisher_df)
 ```
 
+It is reasonable to think that larger groups were more likely to catch more
+fish. Also, bringing a camper signals that people are staying longer at the
+park, which would give them more time to fish. But children do not often like
+to sit silently for long periods, so groups with more children may have fished
+less.
+
+These ideas suggest using a model that can associate the average number of
+caught fish to the `persons`, `child`, and `camper`. We should also use a model
+that accounts for the fact that the number of fishes caught is a non-negative
+integer. A Poisson regression is a relatively simple model that can fulfil both of these requirements.
+
+Note, however, that many visitor groups caught zero fishes (see figure below). These zeroes are
+a combination of those visitors that did not fish at all and those that did
+but caught nothing. Unfortunately, there are many more zeroes than any regular
+Poisson regression can account for. Fortunately, with `brms` we can expand our
+model to be able estimate the proportion of groups that did not fish at all.
+This expanded model is called "zero-inflated Poisson regression" because it
+inflates (i.e., adds more) zeroes to the basic Poisson regression. For now, we presume that all groups had the same chance of going fishing.
+
+```{r histogram of fishes caught}
+#| code-fold: true
+#| eval: true
+#| warning: false
+#| fig-align: center
+#| fig-width: 3.5
+#| fig-height: 3
+ggplot(data = fisher_df, mapping = aes(x = num_fish)) +
+  geom_histogram(binwidth = 2, color = "black", fill = "navyblue") +
+  labs(
+    title = "Many groups did not catch any fish",
+    x = "Number of fish caught",
+    y = "Number of groups"
+  ) +
+  theme_bw()
+```
+
+The code to fit this zero-inflated regression is shown below. The only novelty
+here is the argument `family`, which controls the type of model we want to fit---in this case, a `zero_inflated_poisson()`.
+
+```{r fit zero inf poisson}
+fit_fisher1 <- brm(
+  num_fish ~ persons + child + camper,
+  data = fisher_df,
+  family = zero_inflated_poisson(),
+  chains = 4,
+  cores = 4,
+  iter = 1000,
+  warmup = 500
+)
+```
+
+
+
+```{r summary fit_fisher1}
+summary(fit_fisher1)
+```
+
+$$
+\begin{align*}
+    y&: \text{Number of fish}\\
+    y&\sim \text{Poisson}(\mu) \\
+    \text{log}(\mu) &= \beta X \\
+    \beta_j &\sim \mathrm{i.i.d.} \text{ Normal}(0, 1) \text{ for all } j
+\end{align*}
+$$

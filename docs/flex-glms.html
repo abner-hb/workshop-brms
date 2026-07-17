@@ -111,6 +111,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -391,19 +420,76 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>Let us consider some data from campers gathered by UCLA. In their words “the state wildlife biologists want to model how many fish are being caught by fishermen at a state park. Visitors are asked whether or not they have a camper, how many people were in the group, were there children in the group and how many fish were caught. Some visitors do not fish, but there is no data on whether a person fished or not. Some visitors who did fish did not catch any fish […]”<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>Let us consider some data from campers gathered by UCLA<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. In their words “the state wildlife biologists want to model how many fish are being caught by fishermen at a state park. Visitors are asked whether or not they have a camper, how many people were in the group, were there children in the group and how many fish were caught. Some visitors do not fish, but there is no data on whether a person fished or not. Some visitors who did fish did not catch any fish […]”<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>These data describe 250 groups of park visitors. For each group, we know how many fish they caught (<code>count</code>), how many total people were in the group (<code>persons</code>), how many of these were children (<code>child</code>), and whether the group brought a camper (<code>camper</code>).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fisher_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://paul-buerkner.github.io/data/fish.csv"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fisher_df<span class="sc">$</span>xb <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fisher_df<span class="sc">$</span>zg <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fisher_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fisher_df <span class="ot">&lt;-</span> fisher_df[, <span class="fu">c</span>(<span class="st">"persons"</span>, <span class="st">"child"</span>, <span class="st">"camper"</span>, <span class="st">"count"</span>)]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(fisher_df)[<span class="fu">names</span>(fisher_df) <span class="sc">==</span> <span class="st">"count"</span>] <span class="ot">&lt;-</span> <span class="st">"num_fish"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fisher_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    persons          child           camper         num_fish      
+ Min.   :1.000   Min.   :0.000   Min.   :0.000   Min.   :  0.000  
+ 1st Qu.:2.000   1st Qu.:0.000   1st Qu.:0.000   1st Qu.:  0.000  
+ Median :2.000   Median :0.000   Median :1.000   Median :  0.000  
+ Mean   :2.528   Mean   :0.684   Mean   :0.588   Mean   :  3.296  
+ 3rd Qu.:4.000   3rd Qu.:1.000   3rd Qu.:1.000   3rd Qu.:  2.000  
+ Max.   :4.000   Max.   :3.000   Max.   :1.000   Max.   :149.000  </code></pre>
 </div>
+</div>
+<p>It is reasonable to think that larger groups were more likely to catch more fish. Also, bringing a camper signals that people are staying longer at the park, which would give them more time to fish. But children do not often like to sit silently for long periods, so groups with more children may have fished less.</p>
+<p>These ideas suggest using a model that can associate the average number of caught fish to the <code>persons</code>, <code>child</code>, and <code>camper</code>. We should also use a model that accounts for the fact that the number of fishes caught is a non-negative integer. A Poisson regression is a relatively simple model that can fulfil both of these requirements.</p>
+<p>Note, however, that many visitor groups caught zero fishes (see figure below). These zeroes are a combination of those visitors that did not fish at all and those that did but caught nothing. Unfortunately, there are many more zeroes than any regular Poisson regression can account for. Fortunately, with <code>brms</code> we can expand our model to be able estimate the proportion of groups that did not fish at all. This expanded model is called “zero-inflated Poisson regression” because it inflates (i.e., adds more) zeroes to the basic Poisson regression. For now, we presume that all groups had the same chance of going fishing.</p>
+<div class="cell" data-layout-align="center">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> fisher_df, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> num_fish)) <span class="sc">+</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"navyblue"</span>) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Many groups did not catch any fish"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of fish caught"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of groups"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="flex-glms_files/figure-html/histogram of fishes caught-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="336"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The code to fit this zero-inflated regression is shown below. The only novelty here is the argument <code>family</code>, which controls the type of model we want to fit—in this case, a <code>zero_inflated_poisson()</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit_fisher1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  num_fish <span class="sc">~</span> persons <span class="sc">+</span> child <span class="sc">+</span> camper,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> fisher_df,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">zero_inflated_poisson</span>(),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">warmup =</span> <span class="dv">500</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_fisher1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><span class="math display">\[
+\begin{align*}
+    y&amp;: \text{Number of fish}\\
+    y&amp;\sim \text{Poisson}(\mu) \\
+    \text{log}(\mu) &amp;= \beta X \\
+    \beta_j &amp;\sim \mathrm{i.i.d.} \text{ Normal}(0, 1) \text{ for all } j
+\end{align*}
+\]</span></p>
 
 
 <section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
 <hr>
 <ol>
-<li id="fn1"><p>This description comes from https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/, though it is unclear if the data are real or simulated<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>This data analysis is adapted from Paul Bürkner’s original, available in <a href="https://cran.r-project.org/web/packages/brms/vignettes/brms_distreg.html" class="uri">https://cran.r-project.org/web/packages/brms/vignettes/brms_distreg.html</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>This description comes from <a href="https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/" class="uri">https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/</a>, though it is unclear if the data are real or simulated<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
