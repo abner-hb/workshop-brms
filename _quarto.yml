@@ -16,6 +16,7 @@ book:
     - lin-reg-brms.qmd
     - cooking-w-bayes.qmd
     - tweaking-reg.qmd
+    - flex-glms.qmd
 
 format:
   html:

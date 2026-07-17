@@ -1,0 +1,38 @@
+## Flexible GLMs
+
+Now that we can write `brms` models and read their output, we can brave more
+complicated models.
+
+```{r Load libraries}
+#| code-summary: "Load libraries"
+#| code-fold: true
+#| eval: true
+#| output: false
+library(ggplot2)
+library(brms)
+library(tidybayes)
+library(bayesplot)
+options(brms.backend = "cmdstanr")
+```
+
+Let us consider some data from campers gathered by UCLA. In their words "the
+state wildlife biologists want to model how many fish are being caught by
+fishermen at a state park. Visitors are asked whether or not they have a
+camper, how many people were in the group, were there children in the group and
+how many fish were caught. Some visitors do not fish, but there is no data on
+whether a person fished or not. Some visitors who did fish did not catch any
+fish [...]"[^ucla-data]
+
+[^ucla-data]: This description comes from https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/, though it is unclear if the data are real
+or simulated
+
+These data describe 250 groups of park visitors. For each group, we know how
+many fish they caught (`count`), how many total people were in the group (`persons`), how many of these were children (`child`), and whether the group
+brough a camper (`camper`).
+
+```{r Prepare data}
+fisher_df <- read.csv("https://paul-buerkner.github.io/data/fish.csv")
+fisher_df <- fisher_df[, c("persons", "child", "camper", "count")]
+summary(fisher_df)
+```
+

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>2&nbsp; A first regression in brms – A tutorial for brms</title>
+<title>5&nbsp; Flexible GLMs – A tutorial for brms</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./cooking-w-bayes.html" rel="next">
-<link href="./getting-started.html" rel="prev">
+<link href="./tweaking-reg.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -286,7 +285,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./lin-reg-brms.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">A first regression in brms</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./flex-glms.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Flexible GLMs</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -328,7 +327,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./lin-reg-brms.html" class="sidebar-item-text sidebar-link active">
+  <a href="./lin-reg-brms.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">A first regression in brms</span></span></a>
   </div>
 </li>
@@ -346,7 +345,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./flex-glms.html" class="sidebar-item-text sidebar-link">
+  <a href="./flex-glms.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Flexible GLMs</span></span></a>
   </div>
 </li>
@@ -364,7 +363,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">A first regression in brms</span></h1>
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Flexible GLMs</span></h1>
 </div>
 
 
@@ -381,75 +380,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>brms</code> allows us to add or remove parts of a model as needed, so our code is only as complicated as the model we want to fit. Simple code for simple models; fancy code for fancy models.</p>
-<p>Imagine, for example, that we like penguins and we want to study their weight. R has some clean data about three types of chilly fellows: Adelie, Chinstrap, and Gentoo.</p>
+<p>Now that we can write <code>brms</code> models and read their output, we can brave more complicated models.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(penguins)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>penguins<span class="sc">$</span>body_mass_kg <span class="ot">&lt;-</span> penguins<span class="sc">$</span>body_mass <span class="sc">/</span> <span class="dv">1000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>To start, let us compare the weights of these three groups. The histogram below suggests that Gentoo penguins tend to be the heaviest, while Adelie and Chinstrap tend to have similar weights.</p>
-<div class="cell" data-layout-align="center">
 <details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(penguins, <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> body_mass_kg)) <span class="sc">+</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">fill =</span> <span class="st">"darkorange"</span>) <span class="sc">+</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>species, <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Gentoo penguins are the heaviest"</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body mass (kilograms)"</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>Load libraries</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidybayes)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lin-reg-brms_files/figure-html/visualize penguin weights-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="384"></p>
-</figure>
 </div>
-</div>
-</div>
-<p>We can complement this histogram with estimates for average weight of each group of penguins. A linear regression can give us these estimates along with their confidence intervals. We can fit this (and any other) regression in <code>brms</code> using the function <code>brm()</code> (short for “bayesian regression model”), which for our simple model requires only a formula to describe the regression function and the name of the data set that houses the corresponding variables.</p>
-<p>The code below shows how to fit a linear regression with weight (in kilograms) as the dependent variable and species as the independent categorical variable with values “Adelie”, “Chinstrap”, and “Gentoo”. Run this code and ignore its lengthy output for now.</p>
+<p>Let us consider some data from campers gathered by UCLA. In their words “the state wildlife biologists want to model how many fish are being caught by fishermen at a state park. Visitors are asked whether or not they have a camper, how many people were in the group, were there children in the group and how many fish were caught. Some visitors do not fish, but there is no data on whether a person fished or not. Some visitors who did fish did not catch any fish […]”<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fit_peng1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> body_mass_kg <span class="sc">~</span> species,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fisher_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://paul-buerkner.github.io/data/fish.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fisher_df<span class="sc">$</span>xb <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fisher_df<span class="sc">$</span>zg <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fisher_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>The first time it sees a model, <code>brm()</code> <em>compiles</em> the code, i.e., it uses the C++ toolchain to translate the code into efficient machinespeak. <code>brm()</code> does not need to recompile unless we change something, so rerunning this same regression will be much faster (try it!). Think of <code>brm()</code> as a virtual chef that can cook many things but has to prepare the kitchen <em>after</em> we tell it what we want.</p>
-<p>Now we can ask the model what it thinks the average weights are. Understanding where these values above come from requires a taste of Bayesian statistics that we will savour soon. For now, though, we can summarize our results as follows, focusing on the table of regression coefficients.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_peng1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<pre><code>Family: gaussian
-  Links: mu = identity
-Formula: body_mass_kg ~ species
-   Data: penguins (Number of observations: 342)
-  Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
-         total post-warmup draws = 4000
-
-Regression Coefficients:
-                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept            3.70      0.04     3.63     3.77 1.00     3794     2739
-speciesChinstrap     0.03      0.07    -0.10     0.17 1.00     3977     2723
-speciesGentoo        1.38      0.06     1.27     1.49 1.00     3844     3151
-
-Further Distributional Parameters:
-      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     0.46      0.02     0.43     0.50 1.00     3943     2698
-
-Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
-and Tail_ESS are effective sample size measures, and Rhat is the potential
-scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<p>The <code>Intercept</code> represents the average weight of our Adelie penguins, while <code>speciesChinstrap</code> and <code>speciesGentoo</code> represent the differences of the averages of Chinstrap and Gentoo relative to Adelie. The column <code>Estimate</code> represents a clever guess of the values of the coefficients, <code>Est.Error</code> represents the margin of error of this guess, and <code>l-95% CI</code> and <code>u-95% CI</code> represent the limits of the <em>credibility</em> interval (similar to a <em>confidence</em> interval).</p>
-<p>Based on these results, we estimate that both Adelie and Chinstrap weight around 3.7 kilograms on average, while Gentoo penguins weight around 5.08 kilograms on average. We also estimate that the standard deviation of the weight of all penguin groups, <code>sigma</code>, is 0.46, which means that most penguins’ weights lie within 0.92 kilograms of their group average.</p>
-<p>The summaries we just saw suffice to understand the elementary aspects of many regression models. But the power and versatility of <code>brms</code> will be easier to wield if we devote a little time to learning the “bayesics” of Bayesian statistics and computation. We just learned how to turn on the oven. A bit more effort and we can learn to control the heat.</p>
 
 
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>This description comes from https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/, though it is unclear if the data are real or simulated<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -867,14 +823,11 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./getting-started.html" class="pagination-link" aria-label="Introducing `brms`">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducing <code>brms</code></span></span>
+      <a href="./tweaking-reg.html" class="pagination-link" aria-label="Tweaking regressions with brms">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Tweaking regressions with brms</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./cooking-w-bayes.html" class="pagination-link" aria-label="Intermission: cooking with Bayes">
-        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Intermission: cooking with Bayes</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
