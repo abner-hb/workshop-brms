@@ -18,12 +18,12 @@ Now that we can write `brms` models and read their output, we can brave more
 complicated models. Let us consider some data from park visitors, gathered by UCLA[^orig-pois]. In
 their words:
 
-> "The state wildlife biologists want to model how many fish are
+> The state wildlife biologists want to model how many fish are
 being caught by fishermen at a state park. Visitors are asked whether or not
 they have a camper, how many people were in the group, were there children in
 the group and how many fish were caught. Some visitors do not fish, but there
 is no data on whether a person fished or not. Some visitors who did fish did
-not catch any fish [...]"[^ucla-data]
+not catch any fish [...][^ucla-data]
 
 [^orig-pois]: This data analysis is adapted from Paul Bürkner's original,
 available in <https://cran.r-project.org/web/packages/brms/vignettes/brms_distreg.html>.
@@ -321,8 +321,7 @@ zi     0.41      0.05     0.35     0.47 1.00     1423     1407
 
 In general, the parameter `zi` (short for "zero inflation") represents the
 probability of an observation being an *excess* zero. In our model, we can
-interpret `zi` as the probability of *not* going fishing. This probability is
-estimated to be between 32% and 49%.
+interpret `zi` as the probability of *not* going fishing. With our current credibility criterion, this probability is estimated to be between 35% and 47%.
 
 Now the formula is split. One part informs the probability of going fishing.
 The other part informs the expected number of fishes caught by visitors that
