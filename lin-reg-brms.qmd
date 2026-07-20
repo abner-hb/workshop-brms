@@ -1,5 +1,15 @@
 # A first regression in brms
 
+```{r load libraries}
+#| code-summary: "Load libraries"
+#| code-fold: true
+#| eval: true
+#| output: false
+library(ggplot2)
+library(brms)
+options(brms.backend = "cmdstanr")
+```
+
 `brms` allows us to add or remove parts of a model as needed, so our code is
 only as complicated as the model we want to fit. Simple code for simple
 models; fancy code for fancy models.
@@ -25,7 +35,6 @@ Adelie and Chinstrap tend to have similar weights.
 #| fig-align: center
 #| fig-width: 4
 #| fig-height: 4
-library(ggplot2)
 ggplot(penguins, mapping = aes(x = body_mass_kg)) +
     geom_histogram(binwidth = 0.2, color = "black", fill = "darkorange") +
     facet_wrap(~species, nrow = 3, ncol = 1) +
@@ -49,8 +58,6 @@ as the dependent variable and species as the independent categorical variable
 with values "Adelie", "Chinstrap", and "Gentoo". Run this code and ignore its lengthy output for now.
 
 ```{r simple model with brm}
-library(brms)
-options(brms.backend = "cmdstanr")
 fit_peng1 <- brm(
     formula = body_mass_kg ~ species,
     data = penguins
