@@ -46,27 +46,6 @@ fisher_df <- fisher_df |>
 summary(fisher_df)
 ```
 
-It is reasonable to think that larger groups were more likely to catch more
-fish. Also, groups with campers likely stayed longer at the park, which would
-give them more time to fish. But children do not often like to sit silently
-for long periods, so groups with more children may have fished less.
-
-These ideas suggest using a model that can associate the average number of
-caught fish to `persons`, `child`, and `camper`. We should also use a model
-that accounts for the fact that the number of fishes caught is a non-negative
-integer. A Poisson regression is a relatively simple model that can fulfil both
-of these requirements.
-
-Note, however, that many visitor groups caught zero fishes (see figure below).
-These include zeroes from visitors that did not fish at all and zeroes from
-visitors that did fish but caught nothing. Unfortunately, a regular Poisson
-regression cannot account for these many zeroes, and ignoring them would
-distort our inferences. Fortunately, with `brms` we can expand our model to be
-able estimate the proportion of groups that did not fish at all. This expanded
-model is called "zero-inflated Poisson regression" because it inflates (i.e.,
-adds more) zeroes to the basic Poisson regression. For now, we presume that all
-groups had the same chance of going fishing.
-
 ```{r histogram of fishes caught}
 #| code-fold: true
 #| eval: true
@@ -84,6 +63,29 @@ ggplot(data = fisher_df, mapping = aes(x = num_fish)) +
   theme_bw()
 ```
 
+It is reasonable to think that larger groups were more likely to catch more
+fish. Also, groups with campers likely stayed longer at the park, which would
+give them more time to fish. But children dislike sitting in silence for long
+periods, so groups with more children may have fished less.
+
+These ideas suggest using a model that can associate the average number of
+caught fish to `persons`, `child`, and `camper`. We should also use a model
+that accounts for the fact that the number of fishes caught is a non-negative
+integer. A Poisson regression is a relatively simple model that can fulfil both
+of these requirements.
+
+Note, however, that many visitor groups caught zero fishes (see figure below).
+These include zeroes from visitors that did not fish at all and zeroes from
+visitors that did fish but caught nothing. Unfortunately, a regular Poisson
+regression cannot account for these many zeroes, and ignoring them would
+distort our inferences. Fortunately, with `brms` we can expand our model to be
+able estimate the proportion of groups that did not fish at all. This expanded
+model is called "zero-inflated Poisson regression" because it inflates (i.e.,
+adds more) zeroes to the basic Poisson regression. For now, we presume that all
+groups had the same chance of going fishing.
+
+
+
 The code to fit this zero-inflated regression is shown below. The only novelty
 here is the argument `family`, which controls the type of model we want to
 fit---in this case, a `zero_inflated_poisson()`.
@@ -92,7 +94,7 @@ fit---in this case, a `zero_inflated_poisson()`.
 fit_fisher1 <- brm(
   formula = num_fish ~ persons + child + camper,
   data = fisher_df,
-  family = zero_inflated_poisson(),
+  family = poisson(),
   chains = 4,
   cores = 4,
   iter = 1000,
@@ -107,14 +109,45 @@ Once again, our ESS and R-hats are all acceptable:
 summary(fit_fisher1)
 ```
 
+Before we examine the coefficients, we can check if our model can replicate the overall pattern of fish
+caught. The function `pp_check()` offers many types of plots to check how well
+our model fits the data. It asks us to define a model to evaluate and the
+`type` of evaluation we want. `type = "hist"` compares the histogram of the
+original data (shown in navy blue) to the histograms obtained from the random
+draws in our model (shown in light blue). In this case, `ndraws` controls how
+many randomly chosen histograms to include in the plot. The resulting plot
+suggests that our zero-inflated Poisson replicates well the overall pattern of
+fishes caught.
+
+```{r check fit of fit_fisher1}
+pp_check(object = fit_fisher1, type = "hist", ndraws = 3, binwidth = 1) +
+  coord_cartesian(xlim = c(0, 30)) +
+  labs(
+    title = "Zero-inflated Poisson captures the data well",
+    x = "Number of fish caught"
+  ) +
+    theme_minimal()
+```
+
+```{r}
+# Define a function that computes the proportion of zeroes
+prop_zeros <- function(y) mean(y == 0)
+pp_check(
+  object = fit_fisher1,
+  type = "stat",
+  stat = "prop_zeros",
+  binwidth = 0.01
+) +
+  labs(
+    title = "Proportion of zeroes is accurate",
+    x = "Proportion of visitor groups that caught zero fishes"
+  ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+```
+
 For mathy reasons, the regression coefficients are in the natural logarithm
-scale, which complicates their interpretation. Instead, we can use
-`conditional_effects()` to plot the modeled associations between each variable
-and the average number of fish. The plots below show the medians and 95%
-credibility intervals of the posterior distributions of fish at each value of
-the corresponding independent variable. When a variable is *not* shown in a
-plot, we are fixing its value at either its average (for continuous variables)
-or its reference category (for categorical variables).
+scale, which complicates their interpretation. So, instead of deciphering the table, we can call `conditional_effects()` to plot the modeled associations between each variable and the average number of fish. The plots below show the medians and 95% credibility intervals of the posterior distributions of fish at each value of the corresponding independent variable. When a variable is *not* shown in a plot, we are fixing its value at either its average (for continuous variables) or its reference category (for categorical variables).
 
 We start by visualizing the association between average fishes caught and the
 number of people in a group:
@@ -197,13 +230,6 @@ grid.arrange(
 
 ![](images/cond_effs.png){#fig-cond-effs fig-align="center" width=600}
 
-```{r}
-tst = grid.arrange(
-  arrangeGrob(person_assoc, child_assoc, camper_assoc, ncol = 3),
-  nrow = 1
-)
-```
-
 ## Did inflating zeroes work?
 
 Let's see if our ingenuous use of zero inflation paid off. First, let's review
@@ -220,43 +246,7 @@ probability of an observation being an *excess* zero. In our model, we can
 interpret `zi` as the probability of *not* going fishing. This probability is
 estimated to be between 32% and 49%.
 
-Now we can check if our model can replicate the overall pattern of fish
-caught. The function `pp_check()` offers many types of plots to check how well
-our model fits the data. It asks us to define a model to evaluate and the
-`type` of evaluation we want. `type = "hist"` compares the histogram of the
-original data (shown in navy blue) to the histograms obtained from the random
-draws in our model (shown in light blue). In this case, `ndraws` controls how
-many randomly chosen histograms to include in the plot. The resulting plot
-suggests that our zero-inflated Poisson replicates well the overall pattern of
-fishes caught.
 
-```{r check fit of fit_fisher1}
-pp_check(object = fit_fisher1, type = "hist", ndraws = 5, binwidth = 2) +
-  coord_cartesian(xlim = c(0, 50)) +
-  labs(
-    title = "Zero-inflated Poisson captures the data well",
-    x = "Number of fish caught"
-  ) +
-    theme_minimal()
-```
-
-
-```{r}
-# Define a function that computes the proportion of zeroes
-prop_zeros <- function(y) mean(y == 0)
-pp_check(
-  object = fit_fisher1,
-  type = "stat",
-  stat = "prop_zeros",
-  binwidth = 0.01
-) +
-  labs(
-    title = "Proportion of zeroes is accurate",
-    x = "Proportion of visitor groups that caught zero fishes"
-  ) +
-    theme_minimal() +
-    theme(legend.position = "bottom")
-```
 
 Now the formula is split. One part informs the probability of going fishing.
 The other part informs the expected number of fishes caught by visitors that

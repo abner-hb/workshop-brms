@@ -447,9 +447,6 @@ window.Quarto = {
  Max.   :4.000   Max.   :3.000             Max.   :149.000  </code></pre>
 </div>
 </div>
-<p>It is reasonable to think that larger groups were more likely to catch more fish. Also, groups with campers likely stayed longer at the park, which would give them more time to fish. But children do not often like to sit silently for long periods, so groups with more children may have fished less.</p>
-<p>These ideas suggest using a model that can associate the average number of caught fish to <code>persons</code>, <code>child</code>, and <code>camper</code>. We should also use a model that accounts for the fact that the number of fishes caught is a non-negative integer. A Poisson regression is a relatively simple model that can fulfil both of these requirements.</p>
-<p>Note, however, that many visitor groups caught zero fishes (see figure below). These include zeroes from visitors that did not fish at all and zeroes from visitors that did fish but caught nothing. Unfortunately, a regular Poisson regression cannot account for these many zeroes, and ignoring them would distort our inferences. Fortunately, with <code>brms</code> we can expand our model to be able estimate the proportion of groups that did not fish at all. This expanded model is called “zero-inflated Poisson regression” because it inflates (i.e., adds more) zeroes to the basic Poisson regression. For now, we presume that all groups had the same chance of going fishing.</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -470,12 +467,15 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p>It is reasonable to think that larger groups were more likely to catch more fish. Also, groups with campers likely stayed longer at the park, which would give them more time to fish. But children dislike sitting in silence for long periods, so groups with more children may have fished less.</p>
+<p>These ideas suggest using a model that can associate the average number of caught fish to <code>persons</code>, <code>child</code>, and <code>camper</code>. We should also use a model that accounts for the fact that the number of fishes caught is a non-negative integer. A Poisson regression is a relatively simple model that can fulfil both of these requirements.</p>
+<p>Note, however, that many visitor groups caught zero fishes (see figure below). These include zeroes from visitors that did not fish at all and zeroes from visitors that did fish but caught nothing. Unfortunately, a regular Poisson regression cannot account for these many zeroes, and ignoring them would distort our inferences. Fortunately, with <code>brms</code> we can expand our model to be able estimate the proportion of groups that did not fish at all. This expanded model is called “zero-inflated Poisson regression” because it inflates (i.e., adds more) zeroes to the basic Poisson regression. For now, we presume that all groups had the same chance of going fishing.</p>
 <p>The code to fit this zero-inflated regression is shown below. The only novelty here is the argument <code>family</code>, which controls the type of model we want to fit—in this case, a <code>zero_inflated_poisson()</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit_fisher1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> num_fish <span class="sc">~</span> persons <span class="sc">+</span> child <span class="sc">+</span> camper,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> fisher_df,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">zero_inflated_poisson</span>(),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="fu">poisson</span>(),</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>,</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">1000</span>,</span>
@@ -486,14 +486,40 @@ window.Quarto = {
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_fisher1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>For mathy reasons, the regression coefficients are in the natural logarithm scale, which complicates their interpretation. Instead, we can use <code>conditional_effects()</code> to plot the modeled associations between each variable and the average number of fish. The plots below show the medians and 95% credibility intervals of the posterior distributions of fish at each value of the corresponding independent variable. When a variable is <em>not</em> shown in a plot, we are fixing its value at either its average (for continuous variables) or its reference category (for categorical variables).</p>
+<p>Before we examine the coefficients, we can check if our model can replicate the overall pattern of fish caught. The function <code>pp_check()</code> offers many types of plots to check how well our model fits the data. It asks us to define a model to evaluate and the <code>type</code> of evaluation we want. <code>type = "hist"</code> compares the histogram of the original data (shown in navy blue) to the histograms obtained from the random draws in our model (shown in light blue). In this case, <code>ndraws</code> controls how many randomly chosen histograms to include in the plot. The resulting plot suggests that our zero-inflated Poisson replicates well the overall pattern of fishes caught.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(<span class="at">object =</span> fit_fisher1, <span class="at">type =</span> <span class="st">"hist"</span>, <span class="at">ndraws =</span> <span class="dv">3</span>, <span class="at">binwidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">30</span>)) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Zero-inflated Poisson captures the data well"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of fish caught"</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a function that computes the proportion of zeroes</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>prop_zeros <span class="ot">&lt;-</span> <span class="cf">function</span>(y) <span class="fu">mean</span>(y <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> fit_fisher1,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"stat"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stat =</span> <span class="st">"prop_zeros"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">binwidth =</span> <span class="fl">0.01</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Proportion of zeroes is accurate"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Proportion of visitor groups that caught zero fishes"</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For mathy reasons, the regression coefficients are in the natural logarithm scale, which complicates their interpretation. So, instead of deciphering the table, we can call <code>conditional_effects()</code> to plot the modeled associations between each variable and the average number of fish. The plots below show the medians and 95% credibility intervals of the posterior distributions of fish at each value of the corresponding independent variable. When a variable is <em>not</em> shown in a plot, we are fixing its value at either its average (for continuous variables) or its reference category (for categorical variables).</p>
 <p>We start by visualizing the association between average fishes caught and the number of people in a group:</p>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">conditional_effects</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"persons"</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">conditional_effects</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"persons"</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="fig-pers-eff" class="quarto-float quarto-figure quarto-figure-center anchored" width="300" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
@@ -509,56 +535,56 @@ Figure&nbsp;5.1
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of people</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>person_assoc <span class="ot">&lt;-</span> <span class="fu">plot</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conditional_effects</span>(</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"persons"</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)[[<span class="dv">1</span>]] <span class="sc">+</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Larger groups caught</span><span class="sc">\n</span><span class="st">more fish"</span>,</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"People"</span>,</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Average number of fishes caught"</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Children</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>child_assoc <span class="ot">&lt;-</span> <span class="fu">plot</span>(</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conditional_effects</span>(</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"child"</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>)[[<span class="dv">1</span>]] <span class="sc">+</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Children caught fewer</span><span class="sc">\n</span><span class="st">fish"</span>,</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Children"</span>,</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Average number of fishes caught"</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Camper</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>camper_assoc <span class="ot">&lt;-</span> <span class="fu">plot</span>(</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conditional_effects</span>(</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"camper"</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>)[[<span class="dv">1</span>]] <span class="sc">+</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Groups with campers</span><span class="sc">\n</span><span class="st">caught more fish"</span>,</span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Camper"</span>,</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Average number of fishes caught"</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange these plots in a single row</span></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrangeGrob</span>(person_assoc, child_assoc, camper_assoc, <span class="at">ncol =</span> <span class="dv">3</span>),</span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">1</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of people</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>person_assoc <span class="ot">&lt;-</span> <span class="fu">plot</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conditional_effects</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"persons"</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)[[<span class="dv">1</span>]] <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Larger groups caught</span><span class="sc">\n</span><span class="st">more fish"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"People"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Average number of fishes caught"</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Children</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>child_assoc <span class="ot">&lt;-</span> <span class="fu">plot</span>(</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conditional_effects</span>(</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"child"</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>)[[<span class="dv">1</span>]] <span class="sc">+</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Children caught fewer</span><span class="sc">\n</span><span class="st">fish"</span>,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Children"</span>,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Average number of fishes caught"</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Camper</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>camper_assoc <span class="ot">&lt;-</span> <span class="fu">plot</span>(</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conditional_effects</span>(</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> fit_fisher1,</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">"posterior_epred"</span>,</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect =</span> <span class="st">"camper"</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>)[[<span class="dv">1</span>]] <span class="sc">+</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Groups with campers</span><span class="sc">\n</span><span class="st">caught more fish"</span>,</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Camper"</span>,</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Average number of fishes caught"</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_bw</span>()</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrange these plots in a single row</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrangeGrob</span>(person_assoc, child_assoc, camper_assoc, <span class="at">ncol =</span> <span class="dv">3</span>),</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">1</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div id="fig-cond-effs" class="quarto-float quarto-figure quarto-figure-center anchored" width="600" data-fig-align="center">
@@ -571,12 +597,6 @@ Figure&nbsp;5.2
 </figcaption>
 </figure>
 </div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tst <span class="ot">=</span> <span class="fu">grid.arrange</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrangeGrob</span>(person_assoc, child_assoc, camper_assoc, <span class="at">ncol =</span> <span class="dv">3</span>),</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">1</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 <section id="did-inflating-zeroes-work" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="did-inflating-zeroes-work"><span class="header-section-number">5.1</span> Did inflating zeroes work?</h2>
 <p>Let’s see if our ingenuous use of zero inflation paid off. First, let’s review the part of summary that refers to this expansion of the model:</p>
@@ -584,32 +604,6 @@ Figure&nbsp;5.2
    Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
 zi     0.41      0.04     0.32     0.49 1.00     1463     1233</code></pre>
 <p>In general, the parameter <code>zi</code> (short for “zero inflation”) represents the probability of an observation being an <em>excess</em> zero. In our model, we can interpret <code>zi</code> as the probability of <em>not</em> going fishing. This probability is estimated to be between 32% and 49%.</p>
-<p>Now we can check if our model can replicate the overall pattern of fish caught. The function <code>pp_check()</code> offers many types of plots to check how well our model fits the data. It asks us to define a model to evaluate and the <code>type</code> of evaluation we want. <code>type = "hist"</code> compares the histogram of the original data (shown in navy blue) to the histograms obtained from the random draws in our model (shown in light blue). In this case, <code>ndraws</code> controls how many randomly chosen histograms to include in the plot. The resulting plot suggests that our zero-inflated Poisson replicates well the overall pattern of fishes caught.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(<span class="at">object =</span> fit_fisher1, <span class="at">type =</span> <span class="st">"hist"</span>, <span class="at">ndraws =</span> <span class="dv">5</span>, <span class="at">binwidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">50</span>)) <span class="sc">+</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Zero-inflated Poisson captures the data well"</span>,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of fish caught"</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a function that computes the proportion of zeroes</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>prop_zeros <span class="ot">&lt;-</span> <span class="cf">function</span>(y) <span class="fu">mean</span>(y <span class="sc">==</span> <span class="dv">0</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pp_check</span>(</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> fit_fisher1,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"stat"</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stat =</span> <span class="st">"prop_zeros"</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">binwidth =</span> <span class="fl">0.01</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Proportion of zeroes is accurate"</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Proportion of visitor groups that caught zero fishes"</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 <p>Now the formula is split. One part informs the probability of going fishing. The other part informs the expected number of fishes caught by visitors that did go fishing.</p>
 <p><span class="math display">\[
 \begin{align*}
