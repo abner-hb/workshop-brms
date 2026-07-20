@@ -58,7 +58,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -379,6 +398,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Flexible GLMs</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -457,10 +482,10 @@ window.Quarto = {
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="fig-post-peng1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<div id="fig-post-peng1" class="quarto-float quarto-figure quarto-figure-center anchored" width="3.9in" data-fig-align="center" height="3in">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-post-peng1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/post-dist-peng1.png" class="quarto-figure quarto-figure-center figure-img" style="width:3.9in;height:3in">
+<a href="./images/post-dist-peng1.png"><img src="./images/post-dist-peng1.png" class="quarto-figure quarto-figure-center figure-img" style="width:3.9in;height:3in"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-post-peng1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;4.1: Posterior distributions of average penguin weights
@@ -493,10 +518,10 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <p>The random draws we get form a sequence or <strong>chain</strong>. Also, to get each random draw, <code>brms</code> goes through a computational process that it calls an <strong>iteration</strong>. The first few draws are usually too inaccurate to be useful, so we have to let the chain discard some <strong>warmup</strong> iterations.</p>
 <p>Our penguin regression above used four chains, each of which had 2000 iterations—including warmup iterations, which we discard. Combining the post-warmup draws from all four chains gives us 4000 useful draws in total.</p>
 <p>For complicated mathematical reasons, draws from a given chain tend to be related to each other, which makes them less informative than if they were independent. The <strong>effective sample size (ESS)</strong> measures the equivalent number of random draws we would have if our iterations were independent. A higher ESS means more reliable estimates. <strong>Bulk ESS</strong> measures the reliability of the center (or bulk) of our posterior distribution, e.g., the number we see in the <code>Estimate</code> column. <strong>Tail ESS</strong> measures the reliability of the tails of the posterior distribution, e.g., the numbers in columns <code>l-95% CI</code> and <code>u-95% CI</code>. So, having both a high Bulk ESS and high Tail ESS suggest that our histograms as a whole are reliable.</p>
-<p>We want the effective sample size to be high enough to get stable estimates of uncertainty. In practice, this means that the ESS for all parameters should be above 400 in most models, or at least 100 for special parameters in complicated models. Our penguin model above has way more ESS than this: the lowest Bulk ESS is 3794 (for the <code>Intercept</code>) and the lowest Tail ESS is 2698 (for the standard deviation <code>sigma</code>).</p>
+<p>We want the effective sample size to be high enough to get stable estimates of uncertainty. In practice, this means that the ESS for all parameters should be above 400 in most models (see <span class="citation" data-cites="Vehtari_2021">Vehtari et al. (<a href="references.html#ref-Vehtari_2021" role="doc-biblioref">2021</a>)</span>), or at least 100 for special parameters in complicated models. Our penguin model above has way more ESS than this: the lowest Bulk ESS is 3794 (for the <code>Intercept</code>) and the lowest Tail ESS is 2698 (for the standard deviation <code>sigma</code>).</p>
 <p>Finally, our chain is supposed to get draws for all the relevant values of the parameter of interest. However, with complicated models or difficult data, a chain can get stuck in a few specific values, depriving us of an accurate description of the posterior distribution. To check that we are getting all the relevant values, we should check that multiple chains <em>converge</em> to the same random values. In practice, we should use at least four chains when fitting any model.</p>
 <p><strong>R-hat</strong> (often styled <span class="math inline">\(\hat{R}\)</span>) diagnoses convergence by comparing the variance of numbers within the chains to the variance across different chains. If the chains converged, these two variances should be roughly the same, so R-hat would equal 1. If the chains did not converge, the variances would differ and R-hat would be higher than 1.</p>
-<p>In practice, an R-hat above 1.01 signals convergence problems and, therefore, unreliable results; an R-hat below 1.01 means that our chains converged well, so our results are reliable. Our penguin model shows that the R-hat for all parameters is practically 1. C’est magnifique!</p>
+<p>In practice, an R-hat above 1.01 signals convergence problems and, therefore, unreliable results; an R-hat below 1.01 means that our chains converged well, so our results are reliable (see <span class="citation" data-cites="Vehtari_2021">Vehtari et al. (<a href="references.html#ref-Vehtari_2021" role="doc-biblioref">2021</a>)</span>). Our penguin model shows that the R-hat for all parameters is practically 1. C’est magnifique!</p>
 </section>
 <section id="turning-knobs-and-pushing-buttons" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="turning-knobs-and-pushing-buttons"><span class="header-section-number">4.2</span> Turning knobs and pushing buttons</h2>
@@ -509,18 +534,25 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> body_mass_kg, <span class="at">y =</span> bill_len, <span class="at">color =</span> sex)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Weight is higher for males and increases with weight"</span>, <span class="at">x =</span> <span class="st">"Body mass (kg)"</span>, <span class="at">y =</span> <span class="st">"Bill length (mm)"</span>) <span class="sc">+</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Weight is higher for males and increases with weight"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body mass (kg)"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill length (mm)"</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="tweaking-reg_files/figure-html/plot bill length by sex and species-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="528"></p>
+</div>
+<div id="fig-bill-len-assocs" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="5.5in">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bill-len-assocs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="./images/bill-len-assocs.png"><img src="./images/bill-len-assocs.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:5.5in"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bill-len-assocs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Bill length vs weight by species
+</figcaption>
 </figure>
-</div>
-</div>
 </div>
 <p>We could fit a regression with bill length (in milimiters) as the dependent variable, using sex as the independent variable and adding weight as a proxy for size. To make our model parameters easier to interpret, we will recenter weight (<code>body_mass_kg</code>) around its overall mean of 4.2 kg.</p>
 <div class="cell">
@@ -582,54 +614,66 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<pre><code>     sex   species bm_kg_ctr
+1 female    Adelie -1.501754
+2   male    Adelie -1.501754
+3 female Chinstrap -1.501754
+4   male Chinstrap -1.501754
+5 female    Gentoo -1.501754
+6   male    Gentoo -1.501754</code></pre>
 <p>Now we can combine the results from our model <code>bill_len_fit1</code> with the values in <code>pred_grid</code> to paint regression values at these coordinates. <code>add_epred_draws()</code> uses the draws we got from <code>brm()</code> to compute many plausible averages of our dependent variable (bill length) many times. Finally, all these results are arranged in a format that is easy to plot with <code>ggplot</code> and other libraries. Luckily, the code to execute this rather involved process is blissfully simple:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>posterior_lines <span class="ot">&lt;-</span> <span class="fu">add_epred_draws</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> pred_grid,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> bill_len_fit1</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>posterior_lines <span class="ot">&lt;-</span> <span class="fu">add_epred_draws</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> pred_grid,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> bill_len_fit1</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can read the code above as “for each point of interest in <code>pred_grid</code>, we want <code>ndraws</code> draws from <code>bill_len_fit1</code>”. Omitting <code>ndraws</code> will ask <code>add_epred_draws()</code> to use all available draws in <code>bill_len_fit1</code>. Using more draws increases the precision of the plots we paint, but also the time it takes to draw them. 600 draws are usually precise and fast enough to plot and summarize results; we can use all the draws only when presenting the final results of an analysis.</p>
 <p>Finally, we can combine <code>ggplot</code> with the <code>tidybayes</code> library to create a plot. <code>stat_lineribbon()</code> takes all the regression draws we saved in <code>posterior_lines</code> and, with some trickery, transforms them into a smooth plot. The thick lines represent the means and the shaded regions represent the credibility intervals of the average bill length at each weight.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save mean to return body mass to de-center body mass.</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>bm_kg_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(penguins<span class="sc">$</span>body_mass_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> posterior_lines,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean, <span class="at">y =</span> .epred, <span class="at">color =</span> sex, <span class="at">fill =</span> sex)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_lineribbon</span>(<span class="at">point_interval =</span> <span class="st">"mean_qi"</span>, <span class="at">.width =</span> <span class="fu">c</span>(<span class="fl">0.66</span>, <span class="fl">0.9</span>), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species) <span class="sc">+</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Male penguins have slightly longer bills than females"</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body Mass (kg)"</span>,</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill Length (mm)"</span>,</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Sex"</span>,</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Sex"</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># OPTIONAL: Add observed data to plots</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins,</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean, <span class="at">y =</span> bill_len),</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>,</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save mean to return body mass to de-center body mass.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bm_kg_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(penguins<span class="sc">$</span>body_mass_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> posterior_lines,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean, <span class="at">y =</span> .epred, <span class="at">color =</span> sex, <span class="at">fill =</span> sex)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_lineribbon</span>(<span class="at">point_interval =</span> <span class="st">"mean_qi"</span>, <span class="at">.width =</span> <span class="fu">c</span>(<span class="fl">0.66</span>, <span class="fl">0.9</span>), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species) <span class="sc">+</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Male penguins have slightly longer bills than females"</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body Mass (kg)"</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill Length (mm)"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Sex"</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Sex"</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># OPTIONAL: Add observed data to plots</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins,</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean, <span class="at">y =</span> bill_len),</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="fig-bill-reg2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="500">
+<div id="fig-bill-len1-regline" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="5.5in">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-bill-reg2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="images/bill-len-plt.png" id="fig-bill-reg2" class="img-fluid quarto-figure quarto-figure-center anchored figure-img" width="500">
+<div aria-describedby="fig-bill-len1-regline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="./images/bill-len1-regline.png"><img src="./images/bill-len1-regline.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:5.5in"></a>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-bill-reg2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;4.2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bill-len1-regline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: Regression lines from penguin model
 </figcaption>
 </figure>
 </div>
 <p>In <code>stat_lineribbon()</code>, <code>point_interval</code> controls the type of estimates that the plot will show, with <code>"mean_qi"</code> referring to using a mean and quantiles for the credibility intervals. <code>.width</code> controls the quantiles we use to delineate the credibility intervals. Using <code>c(0.66, 0.9)</code> uses quantiles for 66% and 90% credibility.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Vehtari_2021" class="csl-entry" role="listitem">
+Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and Localization: An Improved Rˆ for Assessing Convergence of MCMC (with Discussion).”</span> <em>Bayesian Analysis</em> 16 (2). <a href="https://doi.org/10.1214/20-ba1221">https://doi.org/10.1214/20-ba1221</a>.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->

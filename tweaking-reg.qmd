@@ -49,8 +49,7 @@ ggplot(posterior_means, aes(x = .epred, y = species, fill = species)) +
   theme(legend.position = "none")
 ```
 
-![Posterior distributions of average penguin weights](images/post-dist-peng1.png){#fig-post-peng1 fig-align="center" width=3.9in
-height=3in}
+[![Posterior distributions of average penguin weights](./images/post-dist-peng1.png){#fig-post-peng1 fig-align="center" width=3.9in height=3in}](./images/post-dist-peng1.png)
 
 Now let us revisit the model summary we saw before:
 
@@ -107,10 +106,10 @@ suggest that our histograms as a whole are reliable.
 
 We want the effective sample size to be high enough to get stable estimates of
 uncertainty. In practice, this means that the ESS for all parameters should be
-above 400 in most models, or at least 100 for special parameters in complicated
-models. Our penguin model above has way more ESS than this: the lowest Bulk ESS
-is 3794 (for the `Intercept`) and the lowest Tail ESS is 2698 (for the standard
-deviation `sigma`).
+above 400 in most models (see @Vehtari_2021), or at least 100 for special
+parameters in complicated models. Our penguin model above has way more ESS than
+this: the lowest Bulk ESS is 3794 (for the `Intercept`) and the lowest Tail ESS
+is 2698 (for the standard deviation `sigma`).
 
 Finally, our chain is supposed to get draws for all the relevant values of the
 parameter of interest. However, with complicated models or difficult data,
@@ -128,8 +127,8 @@ differ and R-hat would be higher than 1.
 
 In practice, an R-hat above 1.01 signals convergence problems and, therefore,
 unreliable results; an R-hat below 1.01 means that our chains converged well,
-so our results are reliable. Our penguin model shows that the R-hat for all
-parameters is practically 1. C'est magnifique!
+so our results are reliable (see @Vehtari_2021). Our penguin model shows that
+the R-hat for all parameters is practically 1. C'est magnifique!
 
 ## Turning knobs and pushing buttons
 
@@ -142,21 +141,27 @@ associations below:
 
 ```{r plot bill length by sex and species}
 #| code-fold: true
-#| eval: true
 #| warning: false
 #| fig-align: center
 #| fig-width: 5.5
-#| fig-height: 3.8
+#| fig-height: 3.5
 ggplot(
   data = penguins,
   mapping = aes(x = body_mass_kg, y = bill_len, color = sex)
 ) +
   geom_point() +
-  labs(title = "Weight is higher for males and increases with weight", x = "Body mass (kg)", y = "Bill length (mm)") +
+  labs(
+    title = "Weight is higher for males and increases with weight",
+    x = "Body mass (kg)",
+    y = "Bill length (mm)"
+  ) +
   theme_bw() +
   facet_wrap(~species, nrow = 1) +
   theme(legend.position = "bottom")
 ```
+
+[![Bill length vs weight by species](./images/bill-len-assocs.png){#fig-bill-len-assocs fig-align="center" width=5.5in}](./images/bill-len-assocs.png)
+
 
 We could fit a regression with bill length (in milimiters) as the dependent
 variable, using sex as the independent variable and adding weight as a proxy
@@ -259,6 +264,15 @@ pred_grid <- expand.grid(
 )
 head(pred_grid)
 ```
+```
+     sex   species bm_kg_ctr
+1 female    Adelie -1.501754
+2   male    Adelie -1.501754
+3 female Chinstrap -1.501754
+4   male Chinstrap -1.501754
+5 female    Gentoo -1.501754
+6   male    Gentoo -1.501754
+```
 
 Now we can combine the results from our model `bill_len_fit1` with the values
 in `pred_grid` to paint regression values at these coordinates.
@@ -291,6 +305,10 @@ credibility intervals of the average bill length at each weight.
 
 
 ```{r plot results from bill_len_fit1}
+#| warning: false
+#| fig-align: center
+#| fig-width: 5.5
+#| fig-height: 3.5
 # Save mean to return body mass to de-center body mass.
 bm_kg_mean <- mean(penguins$body_mass_kg, na.rm = TRUE)
 ggplot(
@@ -317,7 +335,7 @@ ggplot(
   )
 ```
 
-![](images/bill-len-plt.png){#fig-bill-reg2 fig-align="center" width=500}
+[![Regression lines from penguin model](./images/bill-len1-regline.png){#fig-bill-len1-regline fig-align="center" width=5.5in}](./images/bill-len1-regline.png)
 
 In `stat_lineribbon()`, `point_interval` controls the type of estimates that
 the plot will show, with `"mean_qi"` referring to using a mean and quantiles

@@ -30,7 +30,6 @@ Adelie and Chinstrap tend to have similar weights.
 
 ```{r visualize penguin weights}
 #| code-fold: true
-#| eval: true
 #| warning: false
 #| fig-align: center
 #| fig-width: 4
@@ -45,6 +44,8 @@ ggplot(penguins, mapping = aes(x = body_mass_kg)) +
     ) +
     theme_minimal()
 ```
+
+[![Three histograms show penguin weights](./images/peng-hist.png){#fig-peng-hist fig-align="center" width=300}](./images/peng-hist.png)
 
 We can complement this histogram with estimates of the average weight of each
 group of penguins. A linear regression can give us these estimates along with

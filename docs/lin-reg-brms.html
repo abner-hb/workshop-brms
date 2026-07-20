@@ -350,6 +350,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Flexible GLMs</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -409,15 +415,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="lin-reg-brms_files/figure-html/visualize penguin weights-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="384"></p>
+</div>
+<div id="fig-peng-hist" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="300">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peng-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<a href="./images/peng-hist.png"><img src="./images/peng-hist.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="300"></a>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peng-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: Three histograms show penguin weights
+</figcaption>
 </figure>
 </div>
-</div>
-</div>
-<p>We can complement this histogram with estimates for average weight of each group of penguins. A linear regression can give us these estimates along with their confidence intervals. We can fit this (and any other) regression in <code>brms</code> using the function <code>brm()</code> (short for “bayesian regression model”), which for our simple model requires only a formula to describe the regression function and the name of the data set that houses the corresponding variables.</p>
+<p>We can complement this histogram with estimates of the average weight of each group of penguins. A linear regression can give us these estimates along with their confidence intervals. We can fit this (and any other) regression in <code>brms</code> using the function <code>brm()</code> (short for “bayesian regression model”), which for our simple model requires only a formula to describe the regression function and the name of the data set that houses the corresponding variables.</p>
 <p>The code below shows how to fit a linear regression with weight (in kilograms) as the dependent variable and species as the independent categorical variable with values “Adelie”, “Chinstrap”, and “Gentoo”. Run this code and ignore its lengthy output for now.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_peng1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>

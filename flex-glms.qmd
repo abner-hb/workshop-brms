@@ -15,7 +15,7 @@ options(brms.backend = "cmdstanr")
 ```
 
 Now that we can write `brms` models and read their output, we can brave more
-complicated models. Let us consider some data from park visitors, gathered by UCLA[^orig-pois]. In
+complicated models[^orig-pois]. Let us consider some data from park visitors, gathered by UCLA. In
 their words:
 
 > The state wildlife biologists want to model how many fish are
@@ -25,11 +25,10 @@ the group and how many fish were caught. Some visitors do not fish, but there
 is no data on whether a person fished or not. Some visitors who did fish did
 not catch any fish [...][^ucla-data]
 
-[^orig-pois]: This data analysis is adapted from Paul Bürkner's original,
-available in <https://cran.r-project.org/web/packages/brms/vignettes/brms_distreg.html>.
+[^orig-pois]: This data analysis is adapted from @burkner2025distmods.
 
-[^ucla-data]: This description comes from <https://stats.oarc.ucla.edu/stata/dae/zero-inflated-poisson-regression/>, though it is unclear if the data are real
-or simulated
+[^ucla-data]: From @ucla2026zinf. It is unclear if the data are real or
+simulated.
 
 These data describe 250 groups of park visitors. For each group, we know how
 many fish they caught (`count`), how many total people were in the group
@@ -50,20 +49,21 @@ Note that many visitor groups caught zero fishes (see histogram below). These in
 
 ```{r histogram of fishes caught}
 #| code-fold: true
-#| eval: true
 #| warning: false
 #| fig-align: center
-#| fig-width: 3.5
+#| fig-width: 3.6
 #| fig-height: 3
 ggplot(data = fisher_df, mapping = aes(x = num_fish)) +
   geom_histogram(binwidth = 2, color = "black", fill = "navyblue") +
   labs(
-    title = "Many groups did not catch any fish",
+    title = "Many groups did not catch any fishes",
     x = "Fish caught",
     y = "Groups of visitors"
   ) +
   theme_bw()
 ```
+
+[![A histogram of fish caught](./images/fish-hist.png){#fig-fish-hist fig-align="center" width=3.6in}](./images/fish-hist.png)
 
 It is reasonable to think that larger groups were more likely to catch more
 fish. Also, groups with campers likely stayed longer at the park, which would
@@ -130,14 +130,19 @@ draws in our model (shown as $y_{rep}$ in light blue). In this case, `ndraws` co
 many randomly chosen histograms to include in the plot.
 
 ```{r check fit of fit_fisher1}
+#| fig-align: center
+#| fig-width: 5
+#| fig-height: 4
 pp_check(object = fit_fisher1, type = "hist", ndraws = 5, binwidth = 1) +
   coord_cartesian(xlim = c(0, 30)) +
   labs(
     title = "Poisson replicates data poorly",
     x = "Number of fish caught"
   ) +
-    theme_minimal()
+  theme_minimal()
 ```
+
+[![Model replicates of fishes caught](./images/fisher1-pred.png){#fig-fisher1-pred fig-align="center" width=5in}](./images/fisher1-pred.png)
 
 The histograms above suggest that our model is predicting too many visitors
 with 1, 2, and 3 fishes and too few visitors with zero fishes. This suggests that, unfortunately, our current Poisson regression cannot account for these many zeroes, and in trying to do so it is distorting our inferences.
@@ -161,6 +166,9 @@ fit_fisher_zinf <- brm(
 Let's see if our ingenuous use of zero inflation paid off. First, it seems that our zero-inflated Poisson replicates well the overall pattern of fishes caught (see figure below).
 
 ```{r check fit of fit_fisher_zinf}
+#| fig-align: center
+#| fig-width: 5
+#| fig-height: 4
 pp_check(object = fit_fisher_zinf, type = "hist", ndraws = 5, binwidth = 1) +
   coord_cartesian(xlim = c(0, 30)) +
   labs(
@@ -170,11 +178,16 @@ pp_check(object = fit_fisher_zinf, type = "hist", ndraws = 5, binwidth = 1) +
     theme_minimal()
 ```
 
+[![Zero-inflated Poisson replicates](./images/fisher-zinf-pred.png){#fig-fisher-zinf-pred fig-align="center" width=5in}](./images/fisher-zinf-pred.png)
+
 We can also inspect the inspect the proportion of visitors with zero fishes by calling `pp_check()` again. The code is similar to the one above, but we
 now use `type = "stat"` and add a custom function to compute the proportion
 of zeroes in a vector:
 
-```{r}
+```{r check prop of zeroes in fit_fisher_zinf}
+#| fig-align: center
+#| fig-width: 4
+#| fig-height: 3
 # Define a function that computes the proportion of zeroes
 prop_zeros <- function(y) mean(y == 0)
 pp_check(
@@ -191,6 +204,8 @@ pp_check(
     theme_minimal() +
     theme(legend.position = "bottom")
 ```
+
+[![Proportion of zeroes in zero-inflated Poisson](./images/fisher-zinf-zeroes.png){#fig-fisher-zinf-zeroes fig-align="center" width=3.6in}](./images/fisher-zinf-zeroes.png)
 
 The figure above compares the observed proportion of zeroes (shown in navy blue) to
 the proportions predicted based on our model's random draws (shown in light blue). As this histogram
@@ -244,7 +259,8 @@ conditional_effects(
     prob = 0.8 # For 80% credibility intervals
   )
 ```
-![](images/person_eff.png){#fig-pers-eff fig-align="center" width=300}
+
+[![Conditional association of persons](./images/zinf-person-eff.png){#fig-zinf-person-eff fig-align="center" width=3in}](./images/zinf-person-eff.png)
 
 The main lesson from this plot is that groups of visitors with more people
 caught more fish on average, but the difference was not big. With some effort,
@@ -262,7 +278,8 @@ person_assoc <- plot(
   conditional_effects(
     x = fit_fisher_zinf,
     method = "posterior_epred",
-    effect = "persons"
+    effect = "persons",
+    prob = 0.8
   ),
   plot = FALSE
 )[[1]] +
@@ -277,7 +294,8 @@ child_assoc <- plot(
   conditional_effects(
     x = fit_fisher_zinf,
     method = "posterior_epred",
-    effect = "child"
+    effect = "child",
+    prob = 0.8
   ),
   plot = FALSE
 )[[1]] +
@@ -292,7 +310,8 @@ camper_assoc <- plot(
   conditional_effects(
     x = fit_fisher_zinf,
     method = "posterior_epred",
-    effect = "camper"
+    effect = "camper",
+    prob = 0.8
   ),
   plot = FALSE
 )[[1]] +
@@ -309,7 +328,7 @@ grid.arrange(
 )
 ```
 
-![](images/cond_effs.png){#fig-cond-effs fig-align="center" width=600}
+[![Conditional associations in zero-inflated model](./images/cond-effs.png){#fig-cond-effs fig-align="center" width=7in}](./images/cond-effs.png)
 
 Now let's review the part of summary that refers to the zero-inflation parameter:
 
@@ -322,16 +341,3 @@ zi     0.41      0.05     0.35     0.47 1.00     1423     1407
 In general, the parameter `zi` (short for "zero inflation") represents the
 probability of an observation being an *excess* zero. In our model, we can
 interpret `zi` as the probability of *not* going fishing. With our current credibility criterion, this probability is estimated to be between 35% and 47%.
-
-Now the formula is split. One part informs the probability of going fishing.
-The other part informs the expected number of fishes caught by visitors that
-did go fishing.
-
-$$
-\begin{align*}
-    y&: \text{Number of fish}\\
-    y&\sim \text{Poisson}(\mu) \\
-    \text{log}(\mu) &= \beta X \\
-    \beta_j &\sim \mathrm{i.i.d.} \text{ Normal}(0, 1) \text{ for all } j
-\end{align*}
-$$

@@ -17,6 +17,7 @@ book:
     - cooking-w-bayes.qmd
     - tweaking-reg.qmd
     - flex-glms.qmd
+    - references.qmd
 
 format:
   html:
