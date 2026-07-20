@@ -24,3 +24,5 @@ format:
       light: cosmo
       dark: [cosmo, theme-dark.scss]
     callout-appearance: simple
+
+bibliography: references.bib
