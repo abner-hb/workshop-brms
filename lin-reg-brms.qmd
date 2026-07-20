@@ -46,7 +46,7 @@ ggplot(penguins, mapping = aes(x = body_mass_kg)) +
     theme_minimal()
 ```
 
-We can complement this histogram with estimates for average weight of each
+We can complement this histogram with estimates of the average weight of each
 group of penguins. A linear regression can give us these estimates along with
 their confidence intervals. We can fit this (and any other) regression in
 `brms` using the function `brm()` (short for "bayesian regression model"),
@@ -107,10 +107,10 @@ scale reduction factor on split chains (at convergence, Rhat = 1).
 The `Intercept` represents the average weight of our Adelie penguins, while
 `speciesChinstrap` and `speciesGentoo` represent the differences of the
 averages of Chinstrap and Gentoo relative to Adelie. The column `Estimate`
-represents a clever guess of the values of the coefficients, `Est.Error`
-represents the margin of error of this guess, and `l-95% CI` and
-`u-95% CI` represent the limits of the *credibility* interval (similar to a
-*confidence* interval).
+represents a clever guess of the values of the coefficients; `Est.Error`
+represents the margin of error of this guess; and `l-95% CI` and `u-95% CI`
+represent the limits of the *credibility* interval (similar to a *confidence*
+interval), a range for the most plausible values of the coefficient.
 
 Based on these results, we estimate that both Adelie and Chinstrap weight
 around 3.7 kilograms on average, while Gentoo penguins weight around 5.08
