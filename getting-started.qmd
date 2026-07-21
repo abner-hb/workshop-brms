@@ -106,7 +106,7 @@ the effort.
 
 To install `cmdstanr`, first download the package in R:
 
-```{r}
+```{r run cmdstanr installation}
 # Run this in a fresh R session or after restarting your current session
 install.packages(
     pkgs = "cmdstanr",

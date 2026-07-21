@@ -3,7 +3,6 @@
 ```{r Load libraries}
 #| code-summary: "Load libraries"
 #| code-fold: true
-#| eval: true
 #| output: false
 library(dplyr)
 library(ggplot2)
@@ -36,7 +35,6 @@ many fish they caught (`count`), how many total people were in the group
 brought a camper vehicle (`camper`).
 
 ```{r Prepare fisher data}
-#| eval: true
 fisher_df <- read.csv("https://paul-buerkner.github.io/data/fish.csv")
 fisher_df <- fisher_df[, c("persons", "child", "camper", "count")]
 names(fisher_df)[names(fisher_df) == "count"] <- "num_fish"

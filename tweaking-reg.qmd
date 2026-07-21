@@ -3,7 +3,6 @@
 ```{r Load libraries and data}
 #| code-summary: "Load libraries and data"
 #| code-fold: true
-#| eval: true
 #| output: false
 library(ggplot2)
 library(brms)
@@ -169,7 +168,6 @@ for size. To make our model parameters easier to interpret, we will recenter
 weight (`body_mass_kg`) around its overall mean of 4.2 kg.
 
 ```{r center covariates in bill_len_fit1}
-#| eval: true
 penguins$bm_kg_ctr <- penguins$body_mass_kg -
   mean(penguins$body_mass_kg, na.rm = TRUE)
 ```

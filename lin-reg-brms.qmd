@@ -3,7 +3,6 @@
 ```{r load libraries}
 #| code-summary: "Load libraries"
 #| code-fold: true
-#| eval: true
 #| output: false
 library(ggplot2)
 library(brms)
@@ -19,7 +18,6 @@ R has some clean data about three types of chilly fellows: Adelie, Chinstrap,
 and Gentoo.
 
 ```{r load penguin data}
-#| eval: true
 data(penguins)
 penguins$body_mass_kg <- penguins$body_mass / 1000
 ```
