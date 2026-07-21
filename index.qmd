@@ -16,7 +16,7 @@ statistics.
 ## Creation of this document {.unnumbered}
 
 These notes are published using [Quarto](https://quarto.org); the source code
-is available at <INSERT_LATER>.
+is available at <https://github.com/CSCAR/workshop-brms>.
 
 You can switch between light and dark modes using the button in the top left
 corner of the screen. Dark mode reverses the colors of the images to reduce
@@ -24,17 +24,14 @@ brightness. To show an image in its original colors, move your mouse over it
 (or press it if you are on a mobile device). All images link to more detailed
 full-size versions.
 
+## Contact information {.unnumbered}
+
 If you have any questions or comments about these notes, you can contact Abner
 Heredia-Bustos (<abnerhb@umich.edu>).
 
-## Contact information {.unnumbered}
-
-### CSCAR@ISR {.unnumbered}
-
-<NEW_WEBSITE_HERE>
-
-LOREM IPSUM
-
+If you have additional questions about the use of brms tools or would like to
+contact CSCAR@ISR to set up an appointment, please send an email to
+<cscar-isr-help@umich.edu>.
 
 ## Acknowledgments {.unnumbered}
 

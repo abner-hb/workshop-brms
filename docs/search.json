@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "A tutorial for brms",
     "section": "",
-    "text": "Preface\nLast modified: 2026-07-20\nThese self-contained notes are intended for those that want a flexible R library to fit and visualize regressions and are willing or eager to do so with a Bayesian approach. To benefit from these notes it is necessary to know how functions, vectors, and data frames work in R, and to be familiar with linear regression. It is convenient but not necessary to be familiar with Bayesian statistics.",
+    "text": "Preface\nLast modified: 2026-07-21\nThese self-contained notes are intended for those that want a flexible R library to fit and visualize regressions and are willing or eager to do so with a Bayesian approach. To benefit from these notes it is necessary to know how functions, vectors, and data frames work in R, and to be familiar with linear regression. It is convenient but not necessary to be familiar with Bayesian statistics.",
     "crumbs": [
       "Preface"
     ]
@@ -14,7 +14,7 @@
     "href": "index.html#creation-of-this-document",
     "title": "A tutorial for brms",
     "section": "Creation of this document",
-    "text": "Creation of this document\nThese notes are published using Quarto; the source code is available at .\nYou can switch between light and dark modes using the button in the top left corner of the screen. Dark mode reverses the colors of the images to reduce brightness. To show an image in its original colors, move your mouse over it (or press it if you are on a mobile device). All images link to more detailed full-size versions.\nIf you have any questions or comments about these notes, you can contact Abner Heredia-Bustos (abnerhb@umich.edu).",
+    "text": "Creation of this document\nThese notes are published using Quarto; the source code is available at https://github.com/CSCAR/workshop-brms.\nYou can switch between light and dark modes using the button in the top left corner of the screen. Dark mode reverses the colors of the images to reduce brightness. To show an image in its original colors, move your mouse over it (or press it if you are on a mobile device). All images link to more detailed full-size versions.",
     "crumbs": [
       "Preface"
     ]
@@ -24,7 +24,7 @@
     "href": "index.html#contact-information",
     "title": "A tutorial for brms",
     "section": "Contact information",
-    "text": "Contact information\n\nCSCAR@ISR\n\nLOREM IPSUM",
+    "text": "Contact information\nIf you have any questions or comments about these notes, you can contact Abner Heredia-Bustos (abnerhb@umich.edu).\nIf you have additional questions about the use of brms tools or would like to contact CSCAR@ISR to set up an appointment, please send an email to cscar-isr-help@umich.edu.",
     "crumbs": [
       "Preface"
     ]
