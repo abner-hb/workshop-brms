@@ -24,7 +24,13 @@ fit_peng1 <- brm(
 )
 ```
 
-We now know that Bayesian models use clever math to draw a bunch of random values to describe the parameters of interest. The image below shows some colored histograms that represent the random draws---i.e., the posterior distributions---that `brms` got to describe each average penguin weight. The black dots are the estimated means of these histograms and the black bars around the black dots represent 95% *credibility* intervals of the average weights.
+We now know that Bayesian models use clever math to draw a bunch of random
+values to describe the parameters of interest. The image below shows some
+colored histograms that represent the random draws---i.e., the posterior
+distributions---that `brms` got to describe each average penguin weight. The
+black dots are the estimated means of these histograms and the black bars
+around the black dots represent 95% *credibility* intervals of the average
+weights.
 
 ```{r peng1 posteriors}
 #| code-fold: true
@@ -76,7 +82,10 @@ scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
 The numerical summaries we met before have enriched their meaning: they capture
-different parts of the histograms in @fig-post-peng1. `Estimate` shows their mean (painted as black dots), `Est.Error` shows their standard errors, and l-95% CI and u-95% CI show their 5% and 95% quantiles of the histograms (painted as black bars).
+different parts of the histograms in @fig-post-peng1. `Estimate` shows their
+mean (painted as black dots), `Est.Error` shows their standard errors, and
+l-95% CI and u-95% CI show their 5% and 95% quantiles of the histograms
+(painted as black bars).
 
 Other terms in the summary need elaboration, like chain, iter, warmup, Rhat,
 and Bulk_ESS and Tail_ESS. The formal definitions of these terms are *very*
@@ -311,9 +320,18 @@ credibility intervals of the average bill length at each weight.
 bm_kg_mean <- mean(penguins$body_mass_kg, na.rm = TRUE)
 ggplot(
   data = posterior_lines,
-  mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex, fill = sex)
+  mapping = aes(
+    x = bm_kg_ctr + bm_kg_mean,
+    y = .epred,
+    color = sex,
+    fill = sex
+  )
 ) +
-  stat_lineribbon(point_interval = "mean_qi", .width = c(0.66, 0.9), alpha = 0.3) +
+  stat_lineribbon(
+    point_interval = "mean_qi",
+    .width = c(0.66, 0.9),
+    alpha = 0.3
+  ) +
   facet_wrap(~species) +
   labs(
     title = "Male penguins have slightly longer bills than females",

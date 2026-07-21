@@ -14,8 +14,8 @@ options(brms.backend = "cmdstanr")
 ```
 
 Now that we can write `brms` models and read their output, we can brave more
-complicated models[^orig-pois]. Let us consider some data from park visitors, gathered by UCLA. In
-their words:
+complicated models[^orig-pois]. Let us consider some data from park visitors,
+gathered by UCLA. In their words:
 
 > The state wildlife biologists want to model how many fish are
 being caught by fishermen at a state park. Visitors are asked whether or not
@@ -43,7 +43,9 @@ fisher_df <- fisher_df |>
 summary(fisher_df)
 ```
 
-Note that many visitor groups caught zero fishes (see histogram below). These include zeroes from visitors that did not fish at all and zeroes from visitors that did fish but caught nothing.
+Note that many visitor groups caught zero fishes (see histogram below). These
+include zeroes from visitors that did not fish at all and zeroes from visitors
+that did fish but caught nothing.
 
 ```{r histogram of fishes caught}
 #| code-fold: true
@@ -74,11 +76,12 @@ that accounts for the fact that the number of fishes caught is a non-negative
 integer. A Poisson regression is a relatively simple model that can fulfil both
 of these requirements[^poisson-fish].
 
-[^poisson-fish]: ...and gets extra credit because "poisson" means "fish" in french.
+[^poisson-fish]: ...and gets extra credit because "poisson" means "fish" in
+french.
 
-The code to fit this regression is shown below. The only novelty
-here is the argument `family`, which controls the type of model we want to
-fit---in this case, a `poisson()`.
+The code to fit this regression is shown below. The only novelty here is the
+argument `family`, which controls the type of model we want to fit---in this
+case, a `poisson()`.
 
 ```{r fit poisson}
 fit_fisher1 <- brm(
@@ -121,11 +124,11 @@ scale reduction factor on split chains (at convergence, Rhat = 1).
 Before we examine the coefficients, we can check if our model can replicate the
 overall pattern of fish caught. The function `pp_check()` offers many types of
 plots to check how well our model fits the data. It asks us to define a model
-to evaluate and the
-`type` of evaluation we want. `type = "hist"` compares the histogram of the
-original data (shown as $y$ in navy blue) to the histograms obtained from the random
-draws in our model (shown as $y_{rep}$ in light blue). In this case, `ndraws` controls how
-many randomly chosen histograms to include in the plot.
+to evaluate and the `type` of evaluation we want. `type = "hist"` compares the
+histogram of the original data (shown as $y$ in navy blue) to the histograms
+obtained from the random draws in our model (shown as $y_{rep}$ in light blue).
+In this case, `ndraws` controls how many randomly chosen histograms to include
+in the plot.
 
 ```{r check fit of fit_fisher1}
 #| fig-align: center
@@ -143,11 +146,19 @@ pp_check(object = fit_fisher1, type = "hist", ndraws = 5, binwidth = 1) +
 [![Model replicates of fishes caught](./images/fisher1-pred.png){#fig-fisher1-pred fig-align="center" width=5in}](./images/fisher1-pred.png)
 
 The histograms above suggest that our model is predicting too many visitors
-with 1, 2, and 3 fishes and too few visitors with zero fishes. This suggests that, unfortunately, our current Poisson regression cannot account for these many zeroes, and in trying to do so it is distorting our inferences.
+with 1, 2, and 3 fishes and too few visitors with zero fishes. This suggests
+that, unfortunately, our current Poisson regression cannot account for these
+many zeroes, and in trying to do so it is distorting our inferences.
 
 ## Handling excess zeroes
 
-Fortunately, `brms` can expand our model so it directly estimates the proportion of groups that did not fish at all. This expanded model is called "zero-inflated Poisson regression" because it inflates (i.e., adds more) zeroes to the basic Poisson regression. For now, we presume that all groups had the same chance of going fishing. The code to fit this zero-inflated regression is almost the same as before; the only change is that we now set the family to `zero_inflated_poisson()`.
+Fortunately, `brms` can expand our model so it directly estimates the
+proportion of groups that did not fish at all. This expanded model is called
+"zero-inflated Poisson regression" because it inflates (i.e., adds more) zeroes
+to the basic Poisson regression. For now, we presume that all groups had the
+same chance of going fishing. The code to fit this zero-inflated regression is
+almost the same as before; the only change is that we now set the family to
+`zero_inflated_poisson()`.
 
 ```{r fit zero inf poisson}
 fit_fisher_zinf <- brm(
@@ -161,7 +172,9 @@ fit_fisher_zinf <- brm(
 )
 ```
 
-Let's see if our ingenuous use of zero inflation paid off. First, it seems that our zero-inflated Poisson replicates well the overall pattern of fishes caught (see figure below).
+Let's see if our ingenuous use of zero inflation paid off. First, it seems that
+our zero-inflated Poisson replicates well the overall pattern of fishes caught
+(see figure below).
 
 ```{r check fit of fit_fisher_zinf}
 #| fig-align: center
@@ -178,9 +191,10 @@ pp_check(object = fit_fisher_zinf, type = "hist", ndraws = 5, binwidth = 1) +
 
 [![Zero-inflated Poisson replicates](./images/fisher-zinf-pred.png){#fig-fisher-zinf-pred fig-align="center" width=5in}](./images/fisher-zinf-pred.png)
 
-We can also inspect the inspect the proportion of visitors with zero fishes by calling `pp_check()` again. The code is similar to the one above, but we
-now use `type = "stat"` and add a custom function to compute the proportion
-of zeroes in a vector:
+We can also inspect the inspect the proportion of visitors with zero fishes by
+calling `pp_check()` again. The code is similar to the one above, but we now
+use `type = "stat"` and add a custom function to compute the proportion of
+zeroes in a vector:
 
 ```{r check prop of zeroes in fit_fisher_zinf}
 #| fig-align: center
@@ -205,14 +219,16 @@ pp_check(
 
 [![Proportion of zeroes in zero-inflated Poisson](./images/fisher-zinf-zeroes.png){#fig-fisher-zinf-zeroes fig-align="center" width=3.6in}](./images/fisher-zinf-zeroes.png)
 
-The figure above compares the observed proportion of zeroes (shown in navy blue) to
-the proportions predicted based on our model's random draws (shown in light blue). As this histogram
-shows, our zero-inflated poisson accurately predicts the proportion of zeroes.
+The figure above compares the observed proportion of zeroes (shown in navy
+blue) to the proportions predicted based on our model's random draws (shown in
+light blue). As this histogram shows, our zero-inflated poisson accurately
+predicts the proportion of zeroes.
 
 ## Interpreting Poisson
 
-Now we can examine the coefficients from our more accurate zero-inflated Poisson regression. To flaunt the flexibility of `brms`'s output, we switch
-the width of the credibility intervals to 80%:
+Now we can examine the coefficients from our more accurate zero-inflated
+Poisson regression. To flaunt the flexibility of `brms`'s output, we switch the
+width of the credibility intervals to 80%:
 
 ```{r summary zero inf poisson}
 summary(fit_fisher_zinf, prob = 0.8)
@@ -239,8 +255,14 @@ zi     0.41      0.05     0.35     0.47 1.00     1423     1407
 ```
 
 For mathy reasons, the regression coefficients are in the natural logarithm
-scale, which complicates their interpretation. So, instead of deciphering the table, we can call `conditional_effects()` to plot the modeled associations between each variable and the average number of fish. The plots below show the medians and **80%** credibility intervals of the posterior distributions of
-average fish at each value of the corresponding independent variable. When a variable is *not* shown in a plot, we are fixing its value at either its average (for continuous variables) or its reference category (for categorical variables).
+scale, which complicates their interpretation. So, instead of deciphering the
+table, we can call `conditional_effects()` to plot the modeled associations
+between each variable and the average number of fish. The plots below show the
+medians and **80%** credibility intervals of the posterior distributions of
+average fish at each value of the corresponding independent variable. When a
+variable is *not* shown in a plot, we are fixing its value at either its
+average (for continuous variables) or its reference category (for categorical
+variables).
 
 We start by visualizing the association between average fishes caught and the
 number of people in a group:
@@ -328,7 +350,8 @@ grid.arrange(
 
 [![Conditional associations in zero-inflated model](./images/cond-effs.png){#fig-cond-effs fig-align="center" width=7in}](./images/cond-effs.png)
 
-Now let's review the part of summary that refers to the zero-inflation parameter:
+Now let's review the part of summary that refers to the zero-inflation
+parameter:
 
 ```
 Further Distributional Parameters:
@@ -338,4 +361,5 @@ zi     0.41      0.05     0.35     0.47 1.00     1423     1407
 
 In general, the parameter `zi` (short for "zero inflation") represents the
 probability of an observation being an *excess* zero. In our model, we can
-interpret `zi` as the probability of *not* going fishing. With our current credibility criterion, this probability is estimated to be between 35% and 47%.
+interpret `zi` as the probability of *not* going fishing. With our current
+credibility criterion, this probability is estimated to be between 35% and 47%.
