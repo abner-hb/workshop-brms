@@ -17,8 +17,8 @@ penguins$body_mass_kg <- penguins$body_mass / 1000
 Let us return to our model for learning about the average penguin weight by
 species:
 
-```{r return to fit_peng1}
-fit_peng1 <- brm(
+```{r return to fit_weight1}
+fit_weight1 <- brm(
     formula = body_mass_kg ~ species,
     data = penguins
 )
@@ -41,7 +41,7 @@ weights.
 # Create a reference grid with one row per species
 species_grid <- data.frame(species = c("Adelie", "Chinstrap", "Gentoo"))
 # Extract posterior draws of the mean (epred = expected prediction)
-posterior_means <- add_epred_draws(species_grid, fit_peng1)
+posterior_means <- add_epred_draws(species_grid, fit_weight1)
 ggplot(posterior_means, aes(x = .epred, y = species, fill = species)) +
   stat_histinterval(breaks = 20, point_interval = "mean_qi", .width = 0.95) +
   scale_x_continuous(breaks = seq(3.4, 5.6, by = 0.2)) +
@@ -138,6 +138,102 @@ unreliable results; an R-hat below 1.01 means that our chains converged well,
 so our results are reliable (see @Vehtari_2021). Our penguin model shows that
 the R-hat for all parameters is practically 1. C'est magnifique!
 
+## The missing ingredient
+
+So far, we have neglected the third ingredient of Bayesian cuisine: the prior
+distribution. A prior distribution describes what we know about the model
+parameters *before*, or *prior to*, analyzing our current data. This prior
+knowledge always exists and may come from previously published papers, related
+experiments, a formal theory, an informal familiarity, and sometimes from what
+we could call plain common sense. So, we can use the prior distribution to
+condense previous empirical work or to disregard implausible behaviors or
+relationships.
+
+All Bayesian models have priors for all the parameters involved. `brms` has
+default priors that cover wide ranges of values. Especially so for regression
+parameters (excluding the intercept), which get assigned "flat" priors that, in
+rough terms, think that all real numbers are equally plausible. In our model
+above, for example, a flat prior for `speciesGentoo` says that, before seeing
+the data, we think that Gentoo penguins may be bigger than elephants or smaller
+than fleas.
+
+Even a morsel of knowledge can lead to better priors than the defaults. Let's
+pretend we have not yet fitted a regression. [Wikipedia says](https://en.wikipedia.org/wiki/Ad%C3%A9lie_penguin#Description)
+that Adelie penguins weigh between 3.8 and 8.2 kg;
+[that](https://en.wikipedia.org/wiki/Chinstrap_penguin#Description)
+Chinstrap penguins weigh between 3.2 and 5.3 kg;
+[and that](https://en.wikipedia.org/wiki/Gentoo_penguin#Description) Gentoo
+penguins weigh between 4.5 and 8.5 kg.
+
+This knowledge suggests choosing our priors so that all *average* weights are
+between 4 and 8 kg; and so that most weights are within 1 or 2 kg of their
+averages. We also allow the possibility of abnormally fat or thin penguins by
+using a special prior (see below). Note that Wikipedia was talking about the
+full ranges of weights, not just averages, so our priors are comparatively
+broad.
+
+One way of defining our model's priors is with the `prior()` function. The
+first, and unnamed, argument in `prior()` is the distribution[^avail-dist] we
+want to use. The second argument, `class`, is the type of parameter this
+distribution applies to. `prior()` accepts optional arguments `lb` and `ub` to
+implement hard limits on the parameter of interest. Use `lb` and `ub` only with
+parameters that have mathematical boundaries; standard deviations, for example,
+cannot be negative.
+
+[^avail-dist]: The list of available distributions and their parametrizations
+is available at <https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html>
+
+In this regression, we have to define three separate priors: one for the
+Intercept, one to apply to all other regression coefficients (nicknamed `b` in
+`brms` code), and one for the standard deviation of regression residuals
+(nicknamed `sigma`). The code to do this is shown below.
+
+```{r priors for weight1}
+priors_weight1 <- prior(normal(6, 1), class = "Intercept") +
+  prior(normal(0, 1), class = "b") +
+  prior(normal(0, 2), class = "sigma", lb = 0)
+```
+
+Now we refit our model with these new priors.
+
+```{r fit weight model with priors}
+fit_weight2 <- brm(
+    formula = body_mass_kg ~ species,
+    data = penguins,
+    prior = priors_weight1
+)
+summary(fit_weight2)
+```
+
+```
+ Family: gaussian
+  Links: mu = identity
+Formula: body_mass_kg ~ species
+   Data: penguins (Number of observations: 342)
+  Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup draws = 4000
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            3.70      0.04     3.63     3.78 1.00     3775     3195
+speciesChinstrap     0.03      0.07    -0.11     0.16 1.00     3736     2989
+speciesGentoo        1.37      0.06     1.26     1.48 1.00     3684     3021
+
+Further Distributional Parameters:
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     0.46      0.02     0.43     0.50 1.00     4175     3037
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
+```
+
+Our new results are very similar to the ones we had obtained using the default
+priors. In part because our data have enough evidence to avoid elephantine
+inferences. And in part because our Wikipedia-based priors overlapped with our
+data.
+
+
 ## Turning knobs and pushing buttons
 
 Our success in comparing penguins' weight by species has made us more curious
@@ -170,15 +266,31 @@ ggplot(
 
 [![Bill length vs weight by species](./images/bill-len-assocs.png){#fig-bill-len-assocs fig-align="center" width=5.5in}](./images/bill-len-assocs.png)
 
-
 We could fit a regression with bill length (in milimiters) as the dependent
 variable, using sex as the independent variable and adding weight as a proxy
 for size. To make our model parameters easier to interpret, we will recenter
 weight (`body_mass_kg`) around its overall mean of 4.2 kg.
 
-```{r center covariates in bill_len_fit1}
+```{r center covariates in fit_bill_len1}
 penguins$bm_kg_ctr <- penguins$body_mass_kg -
   mean(penguins$body_mass_kg, na.rm = TRUE)
+```
+
+To set our priors, note that the `Intercept` in `brms` represents the average
+value of the dependent variable when all independent variables are set to their
+average or to the reference category. With this in mind, we think that female
+Adelie penguins of average weight have a bill length of around 45 mm, and that
+bills of other types of penguins will be within 10 or 20 mm of this intercept.
+We also assign a more specific prior for the weight variable because we think
+it has a special association with bill length. To do this, we add a separate
+call of `prior()` and add the `coef` argument to specify the name of the
+variable.
+
+```{r priors for fit_bill_len1}
+priors_bill_len1 <- prior(normal(45, 10), class = "Intercept") +
+  prior(normal(0, 10), class = "b") +
+  prior(normal(0, 4), class = "b", coef = "bm_kg_ctr") +
+  prior(normal(0, 20), class = "sigma", lb = 0)
 ```
 
 We can fit our model more efficiently by changing the number of chains and
@@ -192,10 +304,11 @@ after the other.
 During workshop, purposely start with too few iterations to illustrate problems
 -->
 
-```{r fit bill_len_fit1}
-bill_len_fit1 <- brm(
+```{r fit fit_bill_len1}
+fit_bill_len1 <- brm(
   formula = bill_len ~ sex + species + bm_kg_ctr,
   data = penguins,
+  prior = priors_bill_len1,
   chains = 4,
   cores = 4, # for running chains in parallel
   iter = 800, # short for "iterations per chain" (this includes warmup)
@@ -219,12 +332,12 @@ all parameters are well above the minimum threshold of 400, and all R-hats are
 equal to 1. And since R did not show any errors or concerning warnings, we can
 trust that our model ran appropriately.
 
-```{r summary bill_len_fit1}
-summary(bill_len_fit1)
+```{r summary fit_bill_len1}
+summary(fit_bill_len1)
 ```
 
 ```
- Family: gaussian
+Family: gaussian
   Links: mu = identity
 Formula: bill_len ~ sex + species + bm_kg_ctr
    Data: penguins (Number of observations: 333)
@@ -233,15 +346,15 @@ Formula: bill_len ~ sex + species + bm_kg_ctr
 
 Regression Coefficients:
                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept           38.42      0.38    37.63    39.15 1.00     1096      936
-sexmale              2.55      0.35     1.85     3.22 1.00     1143     1123
-speciesChinstrap     9.96      0.32     9.34    10.59 1.00     1766      994
-speciesGentoo        6.30      0.59     5.12     7.46 1.00     1044      981
-bm_kg_ctr            1.73      0.38     0.96     2.50 1.00     1069     1004
+Intercept           38.43      0.39    37.64    39.18 1.00      932     1011
+sexmale              2.53      0.36     1.85     3.26 1.00      932     1004
+speciesChinstrap     9.96      0.34     9.30    10.63 1.00     1633     1036
+speciesGentoo        6.29      0.61     5.13     7.48 1.00      956     1134
+bm_kg_ctr            1.73      0.39     0.95     2.49 1.00      897     1063
 
 Further Distributional Parameters:
       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     2.27      0.09     2.10     2.44 1.00     1632     1145
+sigma     2.27      0.09     2.10     2.45 1.00     1226      881
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -281,7 +394,7 @@ head(pred_grid)
 6   male    Gentoo -1.501754
 ```
 
-Now we can combine the results from our model `bill_len_fit1` with the values
+Now we can combine the results from our model `fit_bill_len1` with the values
 in `pred_grid` to paint regression values at these coordinates.
 `add_epred_draws()` uses the draws we got from `brm()` to compute many
 plausible averages of our dependent variable (bill length) many times. Finally,
@@ -292,13 +405,13 @@ is blissfully simple:
 ```{r}
 posterior_lines <- add_epred_draws(
   newdata = pred_grid,
-  object = bill_len_fit1
+  object = fit_bill_len1
 )
 ```
 
 We can read the code above as "for each point of interest in `pred_grid`, we
-want `ndraws` draws from `bill_len_fit1`". Omitting `ndraws` will ask
-`add_epred_draws()` to use all available draws in `bill_len_fit1`. Using more
+want `ndraws` draws from `fit_bill_len1`". Omitting `ndraws` will ask
+`add_epred_draws()` to use all available draws in `fit_bill_len1`. Using more
 draws increases the precision of the plots we paint, but also the time it
 takes to draw them. 600 draws are usually precise and fast enough to plot and
 summarize results; we can use all the draws only when presenting the final
@@ -311,7 +424,7 @@ The thick lines represent the means and the shaded regions represent the
 credibility intervals of the average bill length at each weight.
 
 
-```{r plot results from bill_len_fit1}
+```{r plot results from fit_bill_len1}
 #| warning: false
 #| fig-align: center
 #| fig-width: 5.5

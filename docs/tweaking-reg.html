@@ -415,7 +415,8 @@ window.Quarto = {
    
   <ul>
   <li><a href="#what-do-the-numbers-mean" id="toc-what-do-the-numbers-mean" class="nav-link active" data-scroll-target="#what-do-the-numbers-mean"><span class="header-section-number">4.1</span> What do the numbers mean?</a></li>
-  <li><a href="#turning-knobs-and-pushing-buttons" id="toc-turning-knobs-and-pushing-buttons" class="nav-link" data-scroll-target="#turning-knobs-and-pushing-buttons"><span class="header-section-number">4.2</span> Turning knobs and pushing buttons</a></li>
+  <li><a href="#the-missing-ingredient" id="toc-the-missing-ingredient" class="nav-link" data-scroll-target="#the-missing-ingredient"><span class="header-section-number">4.2</span> The missing ingredient</a></li>
+  <li><a href="#turning-knobs-and-pushing-buttons" id="toc-turning-knobs-and-pushing-buttons" class="nav-link" data-scroll-target="#turning-knobs-and-pushing-buttons"><span class="header-section-number">4.3</span> Turning knobs and pushing buttons</a></li>
   </ul>
 </nav>
     </div>
@@ -457,7 +458,7 @@ window.Quarto = {
 <h2 data-number="4.1" class="anchored" data-anchor-id="what-do-the-numbers-mean"><span class="header-section-number">4.1</span> What do the numbers mean?</h2>
 <p>Let us return to our model for learning about the average penguin weight by species:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fit_peng1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fit_weight1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> body_mass_kg <span class="sc">~</span> species,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -469,7 +470,7 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a reference grid with one row per species</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>species_grid <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">species =</span> <span class="fu">c</span>(<span class="st">"Adelie"</span>, <span class="st">"Chinstrap"</span>, <span class="st">"Gentoo"</span>))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract posterior draws of the mean (epred = expected prediction)</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>posterior_means <span class="ot">&lt;-</span> <span class="fu">add_epred_draws</span>(species_grid, fit_peng1)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>posterior_means <span class="ot">&lt;-</span> <span class="fu">add_epred_draws</span>(species_grid, fit_weight1)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(posterior_means, <span class="fu">aes</span>(<span class="at">x =</span> .epred, <span class="at">y =</span> species, <span class="at">fill =</span> species)) <span class="sc">+</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_histinterval</span>(<span class="at">breaks =</span> <span class="dv">20</span>, <span class="at">point_interval =</span> <span class="st">"mean_qi"</span>, <span class="at">.width =</span> <span class="fl">0.95</span>) <span class="sc">+</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fl">3.4</span>, <span class="fl">5.6</span>, <span class="at">by =</span> <span class="fl">0.2</span>)) <span class="sc">+</span></span>
@@ -482,7 +483,7 @@ window.Quarto = {
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="fig-post-peng1" class="quarto-float quarto-figure quarto-figure-center anchored" height="3in" data-fig-align="center" width="3.9in">
+<div id="fig-post-peng1" class="quarto-float quarto-figure quarto-figure-center anchored" height="3in" width="3.9in" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-post-peng1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="./images/post-dist-peng1.png"><img src="./images/post-dist-peng1.png" class="quarto-figure quarto-figure-center figure-img" style="width:3.9in;height:3in"></a>
@@ -523,28 +524,72 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <p><strong>R-hat</strong> (often styled <span class="math inline">\(\hat{R}\)</span>) diagnoses convergence by comparing the variance of numbers within the chains to the variance across different chains. If the chains converged, these two variances should be roughly the same, so R-hat would equal 1. If the chains did not converge, the variances would differ and R-hat would be higher than 1.</p>
 <p>In practice, an R-hat above 1.01 signals convergence problems and, therefore, unreliable results; an R-hat below 1.01 means that our chains converged well, so our results are reliable (see <span class="citation" data-cites="Vehtari_2021">Vehtari et al. (<a href="references.html#ref-Vehtari_2021" role="doc-biblioref">2021</a>)</span>). Our penguin model shows that the R-hat for all parameters is practically 1. C’est magnifique!</p>
 </section>
-<section id="turning-knobs-and-pushing-buttons" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="turning-knobs-and-pushing-buttons"><span class="header-section-number">4.2</span> Turning knobs and pushing buttons</h2>
+<section id="the-missing-ingredient" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="the-missing-ingredient"><span class="header-section-number">4.2</span> The missing ingredient</h2>
+<p>So far, we have neglected the third ingredient of Bayesian cuisine: the prior distribution. A prior distribution describes what we know about the model parameters <em>before</em>, or <em>prior to</em>, analyzing our current data. This prior knowledge always exists and may come from previously published papers, related experiments, a formal theory, an informal familiarity, and sometimes from what we could call plain common sense. So, we can use the prior distribution to condense previous empirical work or to disregard implausible behaviors or relationships.</p>
+<p>All Bayesian models have priors for all the parameters involved. <code>brms</code> has default priors that cover wide ranges of values. Especially so for regression parameters (excluding the intercept), which get assigned “flat” priors that, in rough terms, think that all real numbers are equally plausible. In our model above, for example, a flat prior for <code>speciesGentoo</code> says that, before seeing the data, we think that Gentoo penguins may be bigger than elephants or smaller than fleas.</p>
+<p>Even a morsel of knowledge can lead to better priors than the defaults. Let’s pretend we have not yet fitted a regression. <a href="https://en.wikipedia.org/wiki/Ad%C3%A9lie_penguin#Description">Wikipedia says</a> that Adelie penguins weigh between 3.8 and 8.2 kg; <a href="https://en.wikipedia.org/wiki/Chinstrap_penguin#Description">that</a> Chinstrap penguins weigh between 3.2 and 5.3 kg; <a href="https://en.wikipedia.org/wiki/Gentoo_penguin#Description">and that</a> Gentoo penguins weigh between 4.5 and 8.5 kg.</p>
+<p>This knowledge suggests choosing our priors so that all <em>average</em> weights are between 4 and 8 kg; and so that most weights are within 1 or 2 kg of their averages. We also allow the possibility of abnormally fat or thin penguins by using a special prior (see below). Note that Wikipedia was talking about the full ranges of weights, not just averages, so our priors are comparatively broad.</p>
+<p>One way of defining our model’s priors is with the <code>prior()</code> function. The first, and unnamed, argument in <code>prior()</code> is the distribution<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> we want to use. The second argument, <code>class</code>, is the type of parameter this distribution applies to. <code>prior()</code> accepts optional arguments <code>lb</code> and <code>ub</code> to implement hard limits on the parameter of interest. Use <code>lb</code> and <code>ub</code> only with parameters that have mathematical boundaries; standard deviations, for example, cannot be negative.</p>
+<p>In this regression, we have to define three separate priors: one for the Intercept, one to apply to all other regression coefficients (nicknamed <code>b</code> in <code>brms</code> code), and one for the standard deviation of regression residuals (nicknamed <code>sigma</code>). The code to do this is shown below.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>priors_weight1 <span class="ot">&lt;-</span> <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">6</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">"b"</span>) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">2</span>), <span class="at">class =</span> <span class="st">"sigma"</span>, <span class="at">lb =</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now we refit our model with these new priors.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit_weight2 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> body_mass_kg <span class="sc">~</span> species,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">prior =</span> priors_weight1</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_weight2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<pre><code> Family: gaussian
+  Links: mu = identity
+Formula: body_mass_kg ~ species
+   Data: penguins (Number of observations: 342)
+  Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+         total post-warmup draws = 4000
+
+Regression Coefficients:
+                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept            3.70      0.04     3.63     3.78 1.00     3775     3195
+speciesChinstrap     0.03      0.07    -0.11     0.16 1.00     3736     2989
+speciesGentoo        1.37      0.06     1.26     1.48 1.00     3684     3021
+
+Further Distributional Parameters:
+      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+sigma     0.46      0.02     0.43     0.50 1.00     4175     3037
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<p>Our new results are very similar to the ones we had obtained using the default priors. In part because our data have enough evidence to avoid elephantine inferences. And in part because our Wikipedia-based priors overlapped with our data.</p>
+</section>
+<section id="turning-knobs-and-pushing-buttons" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="turning-knobs-and-pushing-buttons"><span class="header-section-number">4.3</span> Turning knobs and pushing buttons</h2>
 <p>Our success in comparing penguins’ weight by species has made us more curious about these lovely amigos. Let us consider now, how much longer or shorter are the bills of male penguins compared to female penguins on average? Before we fit a regression, consider that bill length may be related to the size of the penguins, which in turn changes by sex and species. We can visualize these associations below:</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> penguins,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> body_mass_kg, <span class="at">y =</span> bill_len, <span class="at">color =</span> sex)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Weight is higher for males and increases with weight"</span>,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body mass (kg)"</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill length (mm)"</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> penguins,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> body_mass_kg, <span class="at">y =</span> bill_len, <span class="at">color =</span> sex)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Weight is higher for males and increases with weight"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body mass (kg)"</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill length (mm)"</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="fig-bill-len-assocs" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="5.5in">
+<div id="fig-bill-len-assocs" class="quarto-float quarto-figure quarto-figure-center anchored" width="5.5in" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bill-len-assocs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="./images/bill-len-assocs.png"><img src="./images/bill-len-assocs.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:5.5in"></a>
@@ -556,29 +601,37 @@ Figure&nbsp;4.2: Bill length vs weight by species
 </div>
 <p>We could fit a regression with bill length (in milimiters) as the dependent variable, using sex as the independent variable and adding weight as a proxy for size. To make our model parameters easier to interpret, we will recenter weight (<code>body_mass_kg</code>) around its overall mean of 4.2 kg.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>penguins<span class="sc">$</span>bm_kg_ctr <span class="ot">&lt;-</span> penguins<span class="sc">$</span>body_mass_kg <span class="sc">-</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(penguins<span class="sc">$</span>body_mass_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>penguins<span class="sc">$</span>bm_kg_ctr <span class="ot">&lt;-</span> penguins<span class="sc">$</span>body_mass_kg <span class="sc">-</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(penguins<span class="sc">$</span>body_mass_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>To set our priors, note that the <code>Intercept</code> in <code>brms</code> represents the average value of the dependent variable when all independent variables are set to their average or to the reference category. With this in mind, we think that female Adelie penguins of average weight have a bill length of around 45 mm, and that bills of other types of penguins will be within 10 or 20 mm of this intercept. We also assign a more specific prior for the weight variable because we think it has a special association with bill length. To do this, we add a separate call of <code>prior()</code> and add the <code>coef</code> argument to specify the name of the variable.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>priors_bill_len1 <span class="ot">&lt;-</span> <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">45</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"Intercept"</span>) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">10</span>), <span class="at">class =</span> <span class="st">"b"</span>) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">4</span>), <span class="at">class =</span> <span class="st">"b"</span>, <span class="at">coef =</span> <span class="st">"bm_kg_ctr"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prior</span>(<span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">class =</span> <span class="st">"sigma"</span>, <span class="at">lb =</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can fit our model more efficiently by changing the number of chains and iterations. By default, <code>brms</code> uses 4 chains, each with 2000 total iterations of which half are for warmup. Our model for bill length is relatively simple, so let’s try saving some computer time by using fewer iterations per chain. And let us be cool by having <code>brms</code> fit all the chains in parallel rather than one after the other.</p>
 <!--
 During workshop, purposely start with too few iterations to illustrate problems
 -->
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bill_len_fit1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> bill_len <span class="sc">~</span> sex <span class="sc">+</span> species <span class="sc">+</span> bm_kg_ctr,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> penguins,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, <span class="co"># for running chains in parallel</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">800</span>, <span class="co"># short for "iterations per chain" (this includes warmup)</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">warmup =</span> <span class="dv">400</span> <span class="co"># must be lower than iter</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fit_bill_len1 <span class="ot">&lt;-</span> <span class="fu">brm</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> bill_len <span class="sc">~</span> sex <span class="sc">+</span> species <span class="sc">+</span> bm_kg_ctr,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> penguins,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">prior =</span> priors_bill_len1,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">chains =</span> <span class="dv">4</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cores =</span> <span class="dv">4</span>, <span class="co"># for running chains in parallel</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">iter =</span> <span class="dv">800</span>, <span class="co"># short for "iterations per chain" (this includes warmup)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">warmup =</span> <span class="dv">400</span> <span class="co"># must be lower than iter</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In the code above, the argument <code>chains</code> controls how many separate sequences of random values we will use. <code>warmup</code> controls how many random draws we will discard at the beginning. <code>iter</code> (short for iterations) controls the total number of random draws <em>per chain</em>, which includes the warmup. <code>cores</code> controls the number of mini-brains in our computer that R will occupy. Each chain runs in one core, so with four cores we can run four chains simultaneously. We never need more cores than chains, and we can not use more cores than our computer has available. In practice, ask for at most one core less than those available in your computer; the extra core will run everything else (e.g., internet browsers or Excel).</p>
 <p>The regression summary below shows that the effective sample sizes for all parameters are well above the minimum threshold of 400, and all R-hats are equal to 1. And since R did not show any errors or concerning warnings, we can trust that our model ran appropriately.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bill_len_fit1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_bill_len1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<pre><code> Family: gaussian
+<pre><code>Family: gaussian
   Links: mu = identity
 Formula: bill_len ~ sex + species + bm_kg_ctr
    Data: penguins (Number of observations: 333)
@@ -587,15 +640,15 @@ Formula: bill_len ~ sex + species + bm_kg_ctr
 
 Regression Coefficients:
                  Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept           38.42      0.38    37.63    39.15 1.00     1096      936
-sexmale              2.55      0.35     1.85     3.22 1.00     1143     1123
-speciesChinstrap     9.96      0.32     9.34    10.59 1.00     1766      994
-speciesGentoo        6.30      0.59     5.12     7.46 1.00     1044      981
-bm_kg_ctr            1.73      0.38     0.96     2.50 1.00     1069     1004
+Intercept           38.43      0.39    37.64    39.18 1.00      932     1011
+sexmale              2.53      0.36     1.85     3.26 1.00      932     1004
+speciesChinstrap     9.96      0.34     9.30    10.63 1.00     1633     1036
+speciesGentoo        6.29      0.61     5.13     7.48 1.00      956     1134
+bm_kg_ctr            1.73      0.39     0.95     2.49 1.00      897     1063
 
 Further Distributional Parameters:
       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-sigma     2.27      0.09     2.10     2.44 1.00     1632     1145
+sigma     2.27      0.09     2.10     2.45 1.00     1226      881
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -603,16 +656,16 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <p>The coefficient for <code>sexmale</code> tells us that, if we took two penguins of the same species and average weight, we would expect the male penguin to have a bill that is between 1.85 and 3.22 mm longer on average than the female penguin.</p>
 <p>A plot will help us visualize other regression results. First we define the coordinates that we want to see. <code>expand.grid()</code> can build a data frame with the coordinates we want to plot results for. We fill this function with the names and values of the variables we want to get. <code>expand.grid()</code> will then create all possible combinations of the values of these variables.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pred_grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">sex =</span> <span class="fu">levels</span>(penguins<span class="sc">$</span>sex),</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">species =</span> <span class="fu">levels</span>(penguins<span class="sc">$</span>species),</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">bm_kg_ctr =</span> <span class="fu">seq</span>(</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(penguins<span class="sc">$</span>bm_kg_ctr, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(penguins<span class="sc">$</span>bm_kg_ctr, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">50</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pred_grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">sex =</span> <span class="fu">levels</span>(penguins<span class="sc">$</span>sex),</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">species =</span> <span class="fu">levels</span>(penguins<span class="sc">$</span>species),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">bm_kg_ctr =</span> <span class="fu">seq</span>(</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(penguins<span class="sc">$</span>bm_kg_ctr, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">max</span>(penguins<span class="sc">$</span>bm_kg_ctr, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">length.out =</span> <span class="dv">50</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <pre><code>     sex   species bm_kg_ctr
 1 female    Adelie -1.501754
@@ -621,51 +674,51 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 4   male Chinstrap -1.501754
 5 female    Gentoo -1.501754
 6   male    Gentoo -1.501754</code></pre>
-<p>Now we can combine the results from our model <code>bill_len_fit1</code> with the values in <code>pred_grid</code> to paint regression values at these coordinates. <code>add_epred_draws()</code> uses the draws we got from <code>brm()</code> to compute many plausible averages of our dependent variable (bill length) many times. Finally, all these results are arranged in a format that is easy to plot with <code>ggplot</code> and other libraries. Luckily, the code to execute this rather involved process is blissfully simple:</p>
+<p>Now we can combine the results from our model <code>fit_bill_len1</code> with the values in <code>pred_grid</code> to paint regression values at these coordinates. <code>add_epred_draws()</code> uses the draws we got from <code>brm()</code> to compute many plausible averages of our dependent variable (bill length) many times. Finally, all these results are arranged in a format that is easy to plot with <code>ggplot</code> and other libraries. Luckily, the code to execute this rather involved process is blissfully simple:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>posterior_lines <span class="ot">&lt;-</span> <span class="fu">add_epred_draws</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> pred_grid,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> bill_len_fit1</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>posterior_lines <span class="ot">&lt;-</span> <span class="fu">add_epred_draws</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> pred_grid,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">object =</span> fit_bill_len1</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>We can read the code above as “for each point of interest in <code>pred_grid</code>, we want <code>ndraws</code> draws from <code>bill_len_fit1</code>”. Omitting <code>ndraws</code> will ask <code>add_epred_draws()</code> to use all available draws in <code>bill_len_fit1</code>. Using more draws increases the precision of the plots we paint, but also the time it takes to draw them. 600 draws are usually precise and fast enough to plot and summarize results; we can use all the draws only when presenting the final results of an analysis.</p>
+<p>We can read the code above as “for each point of interest in <code>pred_grid</code>, we want <code>ndraws</code> draws from <code>fit_bill_len1</code>”. Omitting <code>ndraws</code> will ask <code>add_epred_draws()</code> to use all available draws in <code>fit_bill_len1</code>. Using more draws increases the precision of the plots we paint, but also the time it takes to draw them. 600 draws are usually precise and fast enough to plot and summarize results; we can use all the draws only when presenting the final results of an analysis.</p>
 <p>Finally, we can combine <code>ggplot</code> with the <code>tidybayes</code> library to create a plot. <code>stat_lineribbon()</code> takes all the regression draws we saved in <code>posterior_lines</code> and, with some trickery, transforms them into a smooth plot. The thick lines represent the means and the shaded regions represent the credibility intervals of the average bill length at each weight.</p>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save mean to return body mass to de-center body mass.</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>bm_kg_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(penguins<span class="sc">$</span>body_mass_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> posterior_lines,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> .epred,</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> sex,</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> sex</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_lineribbon</span>(</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">point_interval =</span> <span class="st">"mean_qi"</span>,</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">.width =</span> <span class="fu">c</span>(<span class="fl">0.66</span>, <span class="fl">0.9</span>),</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.3</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species) <span class="sc">+</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Male penguins have slightly longer bills than females"</span>,</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body Mass (kg)"</span>,</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill Length (mm)"</span>,</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Sex"</span>,</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Sex"</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># OPTIONAL: Add observed data to plots</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins,</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean, <span class="at">y =</span> bill_len),</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>,</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save mean to return body mass to de-center body mass.</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>bm_kg_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(penguins<span class="sc">$</span>body_mass_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> posterior_lines,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> .epred,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> sex,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> sex</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_lineribbon</span>(</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">point_interval =</span> <span class="st">"mean_qi"</span>,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">.width =</span> <span class="fu">c</span>(<span class="fl">0.66</span>, <span class="fl">0.9</span>),</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.3</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>species) <span class="sc">+</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Male penguins have slightly longer bills than females"</span>,</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body Mass (kg)"</span>,</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill Length (mm)"</span>,</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Sex"</span>,</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Sex"</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># OPTIONAL: Add observed data to plots</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> penguins,</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> bm_kg_ctr <span class="sc">+</span> bm_kg_mean, <span class="at">y =</span> bill_len),</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.5</span>,</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="fig-bill-len1-regline" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="5.5in">
+<div id="fig-bill-len1-regline" class="quarto-float quarto-figure quarto-figure-center anchored" width="5.5in" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bill-len1-regline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="./images/bill-len1-regline.png"><img src="./images/bill-len1-regline.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:5.5in"></a>
@@ -683,6 +736,12 @@ Figure&nbsp;4.3: Regression lines from penguin model
 Vehtari, Aki, Andrew Gelman, Daniel Simpson, Bob Carpenter, and Paul-Christian Bürkner. 2021. <span>“Rank-Normalization, Folding, and Localization: An Improved Rˆ for Assessing Convergence of MCMC (with Discussion).”</span> <em>Bayesian Analysis</em> 16 (2). <a href="https://doi.org/10.1214/20-ba1221">https://doi.org/10.1214/20-ba1221</a>.
 </div>
 </div>
+</section>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p>The list of available distributions and their parametrizations is available at <a href="https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html" class="uri">https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
 </section>
 
 </main> <!-- /main -->
