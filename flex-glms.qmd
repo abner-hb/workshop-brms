@@ -79,7 +79,32 @@ of these requirements[^poisson-fish].
 [^poisson-fish]: ...and gets extra credit because "poisson" means "fish" in
 french.
 
-The code to fit this regression is shown below. The only novelty here is the
+An alternative to priors based on previous measurements is to use priors that discard implausible values but still allow wide ranges for all coefficients[^weak-inf-priors]. One common approach for this is to standardize all numerical dependent variables and assign them all a Normal distribution with mean zero and standard deviation 1. An equivalent approach is to rescale this distribution to match the scale of its corresponding variable.
+
+[^weak-inf-priors]: This type of priors are usually called "weakly-informative priors".
+
+The code to prepare these rescaled priors is below. Note that we have to use the alternative function `prior_string()`, which uses strings instead of formulas in its arguments. This allows us to compute the rescaled parameters of without having to write them manually.
+
+```{r priors for fisher1}
+# Calculate SD for each predictor
+sd_persons <- sd(fisher_df$persons) # 0.9
+sd_child <- sd(fisher_df$child) # 1.18
+prior_fisher1 <- prior_string(
+    paste0("normal(0, ", 1 / sd_persons, ")"),
+    class = "b",
+    coef = "persons"
+  ) +
+  prior_string(
+    paste0("normal(0, ", 1 / sd_child, ")"),
+    class = "b",
+    coef = "child"
+  ) +
+  prior(normal(0, 1), class = "b", coef = "camperyes") +
+  prior(normal(0, 2.5), class = "Intercept")
+
+```
+
+Now we can fit our regression. The only novelty in the code below is the
 argument `family`, which controls the type of model we want to fit---in this
 case, a `poisson()`.
 
@@ -88,6 +113,7 @@ fit_fisher1 <- brm(
   formula = num_fish ~ persons + child + camper,
   data = fisher_df,
   family = poisson(),
+  prior = prior_fisher1,
   chains = 4,
   cores = 4,
   iter = 1000,
@@ -111,10 +137,10 @@ Formula: num_fish ~ persons + child + camper
 
 Regression Coefficients:
           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept    -1.99      0.15    -2.29    -1.70 1.00     1351     1399
-persons       1.09      0.04     1.02     1.17 1.00     1414     1287
-child        -1.69      0.08    -1.86    -1.54 1.00     1234     1252
-camperyes     0.93      0.09     0.75     1.11 1.00     1528     1339
+Intercept    -1.97      0.15    -2.27    -1.67 1.00     1344     1117
+persons       1.09      0.04     1.01     1.16 1.00     1410      989
+child        -1.68      0.08    -1.85    -1.53 1.00     1304     1298
+camperyes     0.93      0.09     0.76     1.11 1.00     1490     1164
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -122,13 +148,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
 Before we examine the coefficients, we can check if our model can replicate the
-overall pattern of fish caught. The function `pp_check()` offers many types of
-plots to check how well our model fits the data. It asks us to define a model
-to evaluate and the `type` of evaluation we want. `type = "hist"` compares the
-histogram of the original data (shown as $y$ in navy blue) to the histograms
-obtained from the random draws in our model (shown as $y_{rep}$ in light blue).
-In this case, `ndraws` controls how many randomly chosen histograms to include
-in the plot.
+overall pattern of fish caught. The function `pp_check()` can paint many types of plots to illustrate how well our models fit the data. It asks us to define a model to evaluate and the `type` of evaluation we want. `type = "hist"` compares the histogram of the original data (shown as $y$ in navy blue) to the histograms obtained from the random draws in our model (shown as $y_{rep}$ in light blue). In this case, `ndraws` controls how many randomly chosen histograms to include in the plot.
 
 ```{r check fit of fit_fisher1}
 #| fig-align: center
@@ -156,8 +176,9 @@ Fortunately, `brms` can expand our model so it directly estimates the
 proportion of groups that did not fish at all. This expanded model is called
 "zero-inflated Poisson regression" because it inflates (i.e., adds more) zeroes
 to the basic Poisson regression. For now, we presume that all groups had the
-same chance of going fishing. The code to fit this zero-inflated regression is
-almost the same as before; the only change is that we now set the family to
+same chance of going fishing. We do not change the default prior for the
+zero-inflation parameter, so the code to fit this zero-inflated regression is
+almost the same as before. The only change is that we now set the family to
 `zero_inflated_poisson()`.
 
 ```{r fit zero inf poisson}
@@ -165,6 +186,7 @@ fit_fisher_zinf <- brm(
   formula = num_fish ~ persons + child + camper,
   data = fisher_df,
   family = zero_inflated_poisson(),
+  prior = prior_fisher1, # Reuse prior from before
   chains = 4,
   cores = 4,
   iter = 1000,
@@ -244,14 +266,18 @@ Formula: num_fish ~ persons + child + camper
 
 Regression Coefficients:
           Estimate Est.Error l-80% CI u-80% CI Rhat Bulk_ESS Tail_ESS
-Intercept    -1.01      0.18    -1.24    -0.79 1.00      986     1173
-persons       0.87      0.05     0.82     0.93 1.00     1113     1488
-child        -1.37      0.10    -1.49    -1.25 1.00     1101     1277
-camperyes     0.80      0.10     0.68     0.92 1.00     1408     1116
+Intercept    -1.00      0.18    -1.23    -0.77 1.00     1425     1339
+persons       0.87      0.04     0.81     0.93 1.00     1309     1286
+child        -1.36      0.09    -1.47    -1.24 1.00     1287     1222
+camperyes     0.79      0.09     0.68     0.91 1.00     1677     1449
 
 Further Distributional Parameters:
    Estimate Est.Error l-80% CI u-80% CI Rhat Bulk_ESS Tail_ESS
-zi     0.41      0.05     0.35     0.47 1.00     1423     1407
+zi     0.41      0.04     0.35     0.47 1.00     1582     1243
+
+Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
+and Tail_ESS are effective sample size measures, and Rhat is the potential
+scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
 For mathy reasons, the regression coefficients are in the natural logarithm
