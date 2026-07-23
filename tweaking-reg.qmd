@@ -81,9 +81,8 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).
 ```
 
-The numerical summaries we met before have enriched their meaning: they capture
-different parts of the histograms in @fig-post-peng1. `Estimate` shows their
-mean (painted as black dots), `Est.Error` shows their standard errors, and
+These numerical summaries have enriched their meaning: they capture different parts of the histograms in @fig-post-peng1. `Estimate` shows their mean
+(painted as black dots), `Est.Error` shows their standard errors, and
 l-95% CI and u-95% CI show their 5% and 95% quantiles of the histograms
 (painted as black bars).
 
@@ -98,8 +97,8 @@ draw, `brms` goes through a computational process that it calls an
 we have to let the chain discard some **warmup** iterations.
 
 Our penguin regression above used four chains, each of which had 2000
-iterations---including warmup iterations, which we discard. Combining the
-post-warmup draws from all four chains gives us 4000 useful draws in total.
+iterations, including warmup. Combining the post-warmup draws from all four
+chains gives us 4000 useful draws in total.
 
 For complicated mathematical reasons, draws from a given chain tend to be
 related to each other, which makes them less informative than if they were
@@ -233,15 +232,14 @@ priors. In part because our data have enough evidence to avoid elephantine
 inferences. And in part because our Wikipedia-based priors overlapped with our
 data.
 
-
 ## Turning knobs and pushing buttons
 
 Our success in comparing penguins' weight by species has made us more curious
 about these lovely amigos. Let us consider now, how much longer or shorter
 are the bills of male penguins compared to female penguins on average? Before
 we fit a regression, consider that bill length may be related to the size of
-the penguins, which in turn changes by sex and species. We can visualize these
-associations below:
+the penguins, which in turn changes by sex and species. @fig-bill-len-assocs
+illustrates these associations.
 
 ```{r plot bill length by sex and species}
 #| code-fold: true
@@ -255,7 +253,7 @@ ggplot(
 ) +
   geom_point() +
   labs(
-    title = "Weight is higher for males and increases with weight",
+    title = "Males and heavier penguins have longer bills",
     x = "Body mass (kg)",
     y = "Bill length (mm)"
   ) +

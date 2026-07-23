@@ -483,7 +483,7 @@ window.Quarto = {
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="fig-post-peng1" class="quarto-float quarto-figure quarto-figure-center anchored" height="3in" width="3.9in" data-fig-align="center">
+<div id="fig-post-peng1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="3.9in" height="3in">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-post-peng1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="./images/post-dist-peng1.png"><img src="./images/post-dist-peng1.png" class="quarto-figure quarto-figure-center figure-img" style="width:3.9in;height:3in"></a>
@@ -514,10 +514,10 @@ sigma     0.46      0.02     0.43     0.50 1.00     3943     2698
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<p>The numerical summaries we met before have enriched their meaning: they capture different parts of the histograms in <a href="#fig-post-peng1" class="quarto-xref">Figure&nbsp;<span>4.1</span></a>. <code>Estimate</code> shows their mean (painted as black dots), <code>Est.Error</code> shows their standard errors, and l-95% CI and u-95% CI show their 5% and 95% quantiles of the histograms (painted as black bars).</p>
+<p>These numerical summaries have enriched their meaning: they capture different parts of the histograms in <a href="#fig-post-peng1" class="quarto-xref">Figure&nbsp;<span>4.1</span></a>. <code>Estimate</code> shows their mean (painted as black dots), <code>Est.Error</code> shows their standard errors, and l-95% CI and u-95% CI show their 5% and 95% quantiles of the histograms (painted as black bars).</p>
 <p>Other terms in the summary need elaboration, like chain, iter, warmup, Rhat, and Bulk_ESS and Tail_ESS. The formal definitions of these terms are <em>very</em> complicated, but an informal understanding is enough to fit almost all the models we need.</p>
 <p>The random draws we get form a sequence or <strong>chain</strong>. Also, to get each random draw, <code>brms</code> goes through a computational process that it calls an <strong>iteration</strong>. The first few draws are usually too inaccurate to be useful, so we have to let the chain discard some <strong>warmup</strong> iterations.</p>
-<p>Our penguin regression above used four chains, each of which had 2000 iterations—including warmup iterations, which we discard. Combining the post-warmup draws from all four chains gives us 4000 useful draws in total.</p>
+<p>Our penguin regression above used four chains, each of which had 2000 iterations, including warmup. Combining the post-warmup draws from all four chains gives us 4000 useful draws in total.</p>
 <p>For complicated mathematical reasons, draws from a given chain tend to be related to each other, which makes them less informative than if they were independent. The <strong>effective sample size (ESS)</strong> measures the equivalent number of random draws we would have if our iterations were independent. A higher ESS means more reliable estimates. <strong>Bulk ESS</strong> measures the reliability of the center (or bulk) of our posterior distribution, e.g., the number we see in the <code>Estimate</code> column. <strong>Tail ESS</strong> measures the reliability of the tails of the posterior distribution, e.g., the numbers in columns <code>l-95% CI</code> and <code>u-95% CI</code>. So, having both a high Bulk ESS and high Tail ESS suggest that our histograms as a whole are reliable.</p>
 <p>We want the effective sample size to be high enough to get stable estimates of uncertainty. In practice, this means that the ESS for all parameters should be above 400 in most models (see <span class="citation" data-cites="Vehtari_2021">Vehtari et al. (<a href="references.html#ref-Vehtari_2021" role="doc-biblioref">2021</a>)</span>), or at least 100 for special parameters in complicated models. Our penguin model above has way more ESS than this: the lowest Bulk ESS is 3794 (for the <code>Intercept</code>) and the lowest Tail ESS is 2698 (for the standard deviation <code>sigma</code>).</p>
 <p>Finally, our chain is supposed to get draws for all the relevant values of the parameter of interest. However, with complicated models or difficult data, a chain can get stuck in a few specific values, depriving us of an accurate description of the posterior distribution. To check that we are getting all the relevant values, we should check that multiple chains <em>converge</em> to the same random values. In practice, we should use at least four chains when fitting any model.</p>
@@ -570,7 +570,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </section>
 <section id="turning-knobs-and-pushing-buttons" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="turning-knobs-and-pushing-buttons"><span class="header-section-number">4.3</span> Turning knobs and pushing buttons</h2>
-<p>Our success in comparing penguins’ weight by species has made us more curious about these lovely amigos. Let us consider now, how much longer or shorter are the bills of male penguins compared to female penguins on average? Before we fit a regression, consider that bill length may be related to the size of the penguins, which in turn changes by sex and species. We can visualize these associations below:</p>
+<p>Our success in comparing penguins’ weight by species has made us more curious about these lovely amigos. Let us consider now, how much longer or shorter are the bills of male penguins compared to female penguins on average? Before we fit a regression, consider that bill length may be related to the size of the penguins, which in turn changes by sex and species. <a href="#fig-bill-len-assocs" class="quarto-xref">Figure&nbsp;<span>4.2</span></a> illustrates these associations.</p>
 <div class="cell" data-layout-align="center">
 <details class="code-fold">
 <summary>Code</summary>
@@ -580,7 +580,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Weight is higher for males and increases with weight"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Males and heavier penguins have longer bills"</span>,</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Body mass (kg)"</span>,</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Bill length (mm)"</span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
@@ -589,7 +589,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="fig-bill-len-assocs" class="quarto-float quarto-figure quarto-figure-center anchored" width="5.5in" data-fig-align="center">
+<div id="fig-bill-len-assocs" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="5.5in">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bill-len-assocs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="./images/bill-len-assocs.png"><img src="./images/bill-len-assocs.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:5.5in"></a>
@@ -718,7 +718,7 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">1</span></span>
 <span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="fig-bill-len1-regline" class="quarto-float quarto-figure quarto-figure-center anchored" width="5.5in" data-fig-align="center">
+<div id="fig-bill-len1-regline" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" width="5.5in">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bill-len1-regline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <a href="./images/bill-len1-regline.png"><img src="./images/bill-len1-regline.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:5.5in"></a>
