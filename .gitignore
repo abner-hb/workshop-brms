@@ -2,3 +2,4 @@
 **/*.quarto_ipynb
 needed_packages.R
 resources.txt
+tst.R
