@@ -165,11 +165,9 @@ scale reduction factor on split chains (at convergence, Rhat = 1).
 Before we examine the coefficients, we can check if our model can replicate the
 overall pattern of fish caught. The function `pp_check()` can paint many types
 of plots to illustrate how well our models fit the data. It asks us to define a
-model to evaluate and the `type` of evaluation we want. `type = "hist"`
-compares the histogram of the original data (shown as $y$ in navy blue) to the
-histograms obtained from the random draws in our model (shown as $y_{rep}$ in
-light blue). In this case, `ndraws` controls how many randomly chosen
-histograms to include in the plot.
+model to evaluate and the `type` of evaluation we want. `type = "bars"`
+compares a barplot of the original data (shown as $y$ in clear blue) to the
+predictive intervals obtained from the random draws in our model (shown as $y_{rep}$ in dark blue).
 
 ```{r check fit of fit_fisher1}
 #| fig-align: center
@@ -177,14 +175,15 @@ histograms to include in the plot.
 #| fig-height: 4
 fisher1_pred <- pp_check(
   object = fit_fisher1,
-  type = "hist",
+  type = "bars",
   ndraws = 600,
-  binwidth = 1
+  prob = 0.9 # for 90% credibility intervals
 ) +
   coord_cartesian(xlim = c(0, 30)) +
   labs(
     title = "Poisson replicates data poorly",
-    x = "Number of fish caught"
+    x = "Number of fish caught",
+    caption = "90% predictive intervals"
   ) +
   theme_minimal()
 fisher1_pred
@@ -197,7 +196,7 @@ ggsave(
   filename = "images/fisher1-pred.png",
   plot = fisher1_pred,
   width = 5,
-  height = 4
+  height = 3.5
 )
 ```
 
@@ -242,14 +241,15 @@ our zero-inflated Poisson replicates well the overall pattern of fish caught
 #| fig-height: 4
 fisher_zinf_pred <- pp_check(
   object = fit_fisher_zinf,
-  type = "hist",
-  ndraws = 5,
-  binwidth = 1
+  type = "bars",
+  ndraws = 600,
+  prob = 0.9
 ) +
   coord_cartesian(xlim = c(0, 30)) +
   labs(
-    title = "Zero-inflated Poisson captures the data well",
-    x = "Number of fish caught"
+    title = "Zero-inflation improves the model fit",
+    x = "Number of fish caught",
+    caption = "90% predictive intervals"
   ) +
   theme_minimal()
 fisher_zinf_pred
@@ -262,7 +262,7 @@ ggsave(
   filename = "images/fisher-zinf-pred.png",
   plot = fisher_zinf_pred,
   width = 5,
-  height = 4
+  height = 3.5
 )
 ```
 
@@ -276,10 +276,10 @@ zeroes in a vector:
 ```{r check prop of zeroes in fit_fisher_zinf}
 #| fig-align: center
 #| fig-width: 4
-#| fig-height: 3
+#| fig-height: 3.8
 # Define a function that computes the proportion of zeroes
 prop_zeros <- function(y) mean(y == 0)
-pp_check(
+fisher_zinf_zeroes <- pp_check(
   object = fit_fisher_zinf,
   type = "stat",
   stat = "prop_zeros",
@@ -292,9 +292,21 @@ pp_check(
     coord_cartesian(xlim = c(0.3, 0.8)) +
     theme_minimal() +
     theme(legend.position = "bottom")
+fisher_zinf_zeroes
 ```
 
-[![Proportion of zeroes in zero-inflated Poisson](./images/fisher-zinf-zeroes.png){#fig-fisher-zinf-zeroes fig-align="center" width=3.6in}](./images/fisher-zinf-zeroes.png)
+```{r save fisher_zinf_zeroes}
+#| include: false
+#| eval: false
+ggsave(
+  filename = "images/fisher-zinf-zeroes.png",
+  plot = fisher_zinf_zeroes,
+  width = 5,
+  height = 3.5
+)
+```
+
+[![Proportion of zeroes in zero-inflated Poisson](./images/fisher-zinf-zeroes.png){#fig-fisher-zinf-zeroes fig-align="center" width=3.5in}](./images/fisher-zinf-zeroes.png)
 
 The figure above compares the observed proportion of zeroes (shown in navy
 blue) to the proportions predicted based on our model's random draws (shown in
