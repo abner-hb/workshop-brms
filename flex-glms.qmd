@@ -12,7 +12,7 @@ library(gridExtra) # For grouping plots; optional
 options(brms.backend = "cmdstanr")
 ```
 
-Now that we can write `brms`'s syntax and read it output, we can brave more
+Now that we can write `brms`'s syntax and read its output, we can brave more
 complicated models. Let us consider some data from park visitors, gathered by
 UCLA[^orig-pois]. In their words:
 
@@ -79,9 +79,9 @@ ggsave(
 
 It is reasonable to think that larger groups were more likely to catch more
 fish. Also, groups with campers likely stayed longer at the park, which would
-give them more time to fish. And children dislike sitting in silence for long
-periods, so groups with more children may have fished less. These ideas suggest
-using a model that can associate the average number of caught fish to
+give them more time to fish. And children tend to dislike sitting in silence for
+long periods, so groups with more children may have fished less. These ideas
+suggest using a model that can associate the average number of caught fish to
 `persons`, `child`, and `camper`. We should also use a model that accounts for
 the fact that the number of fish caught is a non-negative integer. A Poisson
 regression is a relatively simple model that can fulfil both of these
@@ -94,34 +94,29 @@ An alternative to priors based on previous measurements is to use priors that
 discard implausible values but still allow wide ranges for all
 coefficients[^weak-inf-priors]. One common approach for this is to standardize
 all numerical dependent variables and assign them all a Normal distribution
-with mean zero and standard deviation 1. An equivalent approach is to rescale
-this distribution to match the scale of its corresponding variable.
+with mean zero and standard deviation 1^rescale-alternative.
 
 [^weak-inf-priors]: This type of priors are usually called "weakly-informative
 priors".
 
-The code to prepare these rescaled priors is below. Note that we have to use
-the alternative function `prior_string()`, which uses strings instead of
-formulas in its arguments. This allows us to compute the rescaled parameters
-without having to write them manually.
+[^rescale-alternative]: Another, uncommon approach is to rescale a prior distribution to match the scale of its corresponding variable.
+
+```{r standardize covariates}
+for (var_name in c("persons", "child")) {
+  var_name_std <- paste0(var_name, "_std")
+  fisher_df[[var_name_std]] <- scale(
+    fisher_df[[var_name]],
+    center = TRUE,
+    scale = TRUE
+  )
+}
+```
+
+The code to prepare these rescaled priors is below.
 
 ```{r priors for fisher1}
-# Calculate SD for each predictor
-sd_persons <- sd(fisher_df$persons)
-sd_child <- sd(fisher_df$child)
-prior_fisher1 <- prior_string(
-    paste0("normal(0, ", 1 / sd_persons, ")"),
-    class = "b",
-    coef = "persons"
-  ) +
-  prior_string(
-    paste0("normal(0, ", 1 / sd_child, ")"),
-    class = "b",
-    coef = "child"
-  ) +
-  prior(normal(0, 1), class = "b", coef = "camperyes") +
+prior_fisher1 <- prior(prior = std_normal(), class = "b") +
   prior(normal(0, 2.5), class = "Intercept")
-
 ```
 
 Now we can fit our regression. The only novelty in the code below is the
@@ -130,7 +125,7 @@ case, a `poisson()`.
 
 ```{r fit poisson}
 fit_fisher1 <- brm(
-  formula = num_fish ~ persons + child + camper,
+  formula = num_fish ~ persons_std + child_std + camper,
   data = fisher_df,
   family = poisson(),
   prior = prior_fisher1,
@@ -150,17 +145,17 @@ summary(fit_fisher1)
 ```
  Family: poisson
   Links: mu = log
-Formula: num_fish ~ persons + child + camper
+Formula: num_fish ~ persons_std + child_std + camper
    Data: fisher_df (Number of observations: 250)
   Draws: 4 chains, each with iter = 1000; warmup = 500; thin = 1;
          total post-warmup draws = 2000
 
 Regression Coefficients:
-          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-Intercept    -1.97      0.15    -2.27    -1.67 1.00     1344     1117
-persons       1.09      0.04     1.01     1.16 1.00     1410      989
-child        -1.68      0.08    -1.85    -1.53 1.00     1304     1298
-camperyes     0.93      0.09     0.76     1.11 1.00     1490     1164
+            Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+Intercept      -0.38      0.09    -0.55    -0.20 1.00     1163     1192
+persons_std     1.21      0.04     1.13     1.30 1.00     1224     1162
+child_std      -1.43      0.07    -1.57    -1.30 1.00     1400     1452
+camperyes       0.93      0.09     0.76     1.11 1.00     1402     1181
 
 Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -183,7 +178,7 @@ histograms to include in the plot.
 fisher1_pred <- pp_check(
   object = fit_fisher1,
   type = "hist",
-  ndraws = 5,
+  ndraws = 600,
   binwidth = 1
 ) +
   coord_cartesian(xlim = c(0, 30)) +
@@ -226,7 +221,7 @@ almost the same as before. The only change is that we now set the family to
 
 ```{r fit zero inf poisson}
 fit_fisher_zinf <- brm(
-  formula = num_fish ~ persons + child + camper,
+  formula = num_fish ~ persons_std + child_std + camper,
   data = fisher_df,
   family = zero_inflated_poisson(),
   prior = prior_fisher1, # Reuse prior from before
@@ -359,11 +354,11 @@ number of people in a group:
 #| fig-width: 3.5
 #| fig-height: 3
 conditional_effects(
-    x = fit_fisher_zinf,
-    method = "posterior_epred",
-    effect = "persons",
-    prob = 0.8 # For 80% credibility intervals
-  )
+  x = fit_fisher_zinf,
+  method = "posterior_epred",
+  effect = "persons_std",
+  prob = 0.8 # For 80% credibility intervals
+)
 ```
 
 [![Conditional association of persons](./images/zinf-person-eff.png){#fig-zinf-person-eff fig-align="center" width=3in}](./images/zinf-person-eff.png)
@@ -381,11 +376,13 @@ associations of children and camper and show them together in @fig-cond-effs.
 #| fig-width: 7
 #| fig-height: 3
 # Number of people
+persons_mean <- mean(fisher_df$persons)
+persons_sd <- sd(fisher_df$persons)
 person_assoc <- plot(
   conditional_effects(
     x = fit_fisher_zinf,
     method = "posterior_epred",
-    effect = "persons",
+    effect = "persons_std",
     prob = 0.8
   ),
   plot = FALSE
@@ -395,13 +392,20 @@ person_assoc <- plot(
     x = "People",
     y = "Average number of fish caught"
   ) +
-theme_bw()
+  scale_x_continuous(
+    name = "Number of persons",
+    breaks = (1:4 - persons_mean) / persons_sd, # adjust to your data range
+    labels = 1:4
+  ) +
+  theme_bw()
 # Children
+child_mean <- mean(fisher_df$child)
+child_sd <- sd(fisher_df$child)
 child_assoc <- plot(
   conditional_effects(
     x = fit_fisher_zinf,
     method = "posterior_epred",
-    effect = "child",
+    effect = "child_std",
     prob = 0.8
   ),
   plot = FALSE
@@ -411,7 +415,12 @@ child_assoc <- plot(
     x = "Children",
     y = "Average number of fish caught"
   ) +
-theme_bw()
+  scale_x_continuous(
+    name = "Number of persons",
+    breaks = (1:4 - child_mean) / child_sd, # adjust to your data range
+    labels = 1:4
+  ) +
+  theme_bw()
 # Camper
 camper_assoc <- plot(
   conditional_effects(
@@ -427,13 +436,13 @@ camper_assoc <- plot(
     x = "Camper",
     y = "Average number of fish caught"
   ) +
-theme_bw()
+  theme_bw()
 # Arrange these plots in a single row
 cond_effs <- grid.arrange(
   arrangeGrob(person_assoc, camper_assoc, child_assoc, ncol = 3),
   nrow = 1
 )
-cond_effs
+plot(cond_effs)
 ```
 
 ```{r save cond-effs}
@@ -455,10 +464,35 @@ parameter:
 ```
 Further Distributional Parameters:
    Estimate Est.Error l-80% CI u-80% CI Rhat Bulk_ESS Tail_ESS
-zi     0.41      0.05     0.35     0.47 1.00     1423     1407
+zi     0.41      0.04     0.35     0.47 1.00     1582     1243
 ```
 
 In general, the parameter `zi` (short for "zero inflation") represents the
 probability of an observation being an *excess* zero. In our model, we can
 interpret `zi` as the probability of *not* going fishing. With our current
 credibility criterion, this probability is estimated to be between 35% and 47%.
+
+<!--
+Note that we have to use
+the alternative function `prior_string()`, which uses strings instead of
+formulas in its arguments. This allows us to compute the rescaled parameters
+without having to write them manually.
+
+```{r archive priors for fisher1}
+# Calculate SD for each predictor
+sd_persons <- sd(fisher_df$persons)
+sd_child <- sd(fisher_df$child)
+prior_fisher1 <- prior(
+    paste0("normal(0, ", 1 / sd_persons, ")"),
+    class = "b",
+    coef = "persons"
+  ) +
+  prior_string(
+    paste0("normal(0, ", 1 / sd_child, ")"),
+    class = "b",
+    coef = "child"
+  ) +
+  prior(normal(0, 1), class = "b", coef = "camperyes") +
+  prior(normal(0, 2.5), class = "Intercept")
+```
+ -->
