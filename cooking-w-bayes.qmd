@@ -46,11 +46,10 @@ values to get a sample. If we follow the probabilities given by the numerator in
 Bayes' Theorem, the random values we draw will eventually describe the
 plausible values for $\theta$, i.e., its posterior distribution. With this
 strategy, we can ignore the fancy constant because it does not change the
-*relative* probabilities of the values we sample.
-
-Thus, we can view Bayesian computation as rolling some metaphorical dice and
-then using Bayes' theorem to transform these rolls into values that describe
-the plausible range of the parameters (or other quantities) we want to study.
+*relative* probabilities of the values we sample. Thus, we can view Bayesian
+computation as rolling some metaphorical dice and then using Bayes' theorem to
+transform these rolls into values that describe the plausible range of the
+parameters (or other quantities) we want to study.
 
 So far we know the ingredients and the recipe to cook our dish. Now all we need
-is a few details on how to use the knobs and buttons on our oven (`brms`).
+is a few details on how to use the knobs and buttons on our `brms` oven.
