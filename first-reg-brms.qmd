@@ -8,12 +8,8 @@ library(brms)
 options(brms.backend = "cmdstanr")
 ```
 
-`brms` allows us to add or remove parts of a model as needed, so our code is
-only as complicated as the model we want to fit. Simple code for simple
-models; fancy code for fancy models.
-
-Imagine, for example, that we like penguins and we want to study their weight.
-R has some clean data[^penguins] about three types of chilly fellows: Adelie, Chinstrap,
+Imagine that we like penguins and we want to study their weight. R has some
+clean data[^penguins] about three types of chilly fellows: Adelie, Chinstrap,
 and Gentoo.
 
 [^penguins]: Find more information on these data by running `help(penguins)` and referring to @kaye_2025_palmerpenguins.
@@ -72,8 +68,8 @@ regression will be much faster (try it!). Think of `brm()` as a virtual chef
 that can cook many things but has to prepare the kitchen *after* we tell it
 what we want.
 
-Now we can ask the model what it thinks the average weights are. Understanding
-where these values above come from requires a taste of Bayesian statistics that
+Now we can extract the models' inferences on average weights. Understanding
+where these values come from requires a taste of Bayesian statistics that
 we will savour soon. For now, though, we can summarize our results as follows,
 focusing on the table of regression coefficients.
 
@@ -121,5 +117,6 @@ weights lie within 0.92 kilograms of their species average.
 
 The summaries we just saw suffice to understand the elementary aspects of many
 regression models. But the power and versatility of `brms` will be easier to
-wield if we devote a little time to learning a bit of Bayesian statistics and
-computation. We just learned how to turn on the oven. A bit more effort and we can learn to control the heat.
+wield if we learn a bit of Bayesian statistics and computation. We just
+learned how to turn on the oven. A bit more effort and we can learn to control
+the heat.
