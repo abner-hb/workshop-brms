@@ -171,12 +171,12 @@ the full ranges of weights, not just averages, so our priors are comparatively
 broad.
 
 One way of defining our model's priors is with the `prior()` function. The
-first, and unnamed, argument in `prior()` is the distribution[^avail-dist] we
+first argument is `prior`, which declares the distribution[^avail-dist] we
 want to use. The second argument, `class`, is the type of parameter this
-distribution applies to. `prior()` accepts optional arguments `lb` and `ub` to
-implement hard limits on the parameter of interest. Use `lb` and `ub` only with
-parameters that have mathematical boundaries; standard deviations, for example,
-cannot be negative.
+distribution applies to. `lb` (lower bound) and `ub` (upper bound) are
+optional arguments that enforce boundaries on the parameter of interest. Use
+`lb` and `ub` only with parameters that have mathematical boundaries; standard
+deviations, for example, cannot be negative.
 
 [^avail-dist]: The list of available distributions and their parametrizations
 is available at <https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html>
@@ -187,9 +187,9 @@ Intercept, one to apply to all other regression coefficients (nicknamed `b` in
 (nicknamed `sigma`). The code to do this is shown below.
 
 ```{r priors for weight1}
-priors_weight1 <- prior(normal(6, 1), class = "Intercept") +
-  prior(normal(0, 1), class = "b") +
-  prior(normal(0, 2), class = "sigma", lb = 0)
+priors_weight1 <- prior(prior = normal(6, 1), class = "Intercept") +
+  prior(prior = normal(0, 1), class = "b") +
+  prior(prior = normal(0, 2), class = "sigma", lb = 0)
 ```
 
 
@@ -201,11 +201,10 @@ explicitly, but then the code would not run. The reason is that the code
 *inside* `prior()` is not for R but for Stan, so we have to conform to Stan's
 syntax. And since Stan forbids things like `mean = 0` inside distributions, we
 cannot write theme here either.
-
 The [Stan Functions Reference](https://mc-stan.org/docs/functions-reference/)
 shows how to write all the parameters in any distribution it has; the Normal,
 for example, is
-[here](https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html#distribution-statement).
+[here](https://mc-stan.org/docs/functions-reference/unbounded_continuous_distributions.html#normal-distribution).
 
 :::
 
@@ -251,7 +250,7 @@ overlapped with our data.
 ## Turning knobs and pushing buttons
 
 Our success in comparing penguins' weight by species has made us more curious
-about these lovely amigos. Let us consider now, how much longer or shorter
+about these beaky buddies. Let us consider now, how much longer or shorter
 are the bills of male penguins compared to female penguins on average? Before
 we fit a regression, consider that bill length may be related to the size of
 the penguins, which in turn changes by sex and species. @fig-bill-len-assocs
@@ -308,12 +307,11 @@ priors_bill_len1 <- prior(normal(45, 10), class = "Intercept") +
   prior(normal(0, 20), class = "sigma", lb = 0)
 ```
 
-We can fit our model more efficiently by changing the number of chains and
-iterations. By default, `brms` uses 4 chains, each with 2000 total iterations
-of which half are for warmup. Our model for bill length is relatively simple,
-so let's try saving some computer time by using fewer iterations per chain. And
-let us be cool by having `brms` fit all the chains in parallel rather than one
-after the other.
+By default, `brms` uses 4 chains, each with 2000 total iterations of which half
+are for warmup. Our model for bill length is relatively simple, so let's try
+saving some computer time by using fewer iterations per chain. And let us be
+cool by having `brms` fit all the chains in parallel rather than one after the
+other.
 
 <!--
 During workshop, purposely start with too few iterations to illustrate problems
@@ -442,11 +440,11 @@ credibility intervals of the average bill length at each weight.
 #| fig-align: center
 #| fig-width: 5.5
 #| fig-height: 3.5
-# Save mean to return body mass to de-center body mass.
-bm_kg_mean <- mean(penguins$body_mass_kg, na.rm = TRUE)
+# Save average to return body mass to de-center body mass.
+bm_kg_avg <- mean(penguins$body_mass_kg, na.rm = TRUE)
 ggplot(
   data = posterior_lines,
-  mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = .epred, color = sex, fill = sex)
+  mapping = aes(x = bm_kg_ctr + bm_kg_avg, y = .epred, color = sex, fill = sex)
 ) +
   stat_lineribbon(
     point_interval = "mean_qi",
@@ -466,7 +464,7 @@ ggplot(
   # OPTIONAL: Add observed data to plots
   geom_point(
     data = penguins,
-    mapping = aes(x = bm_kg_ctr + bm_kg_mean, y = bill_len),
+    mapping = aes(x = bm_kg_ctr + bm_kg_avg, y = bill_len),
     alpha = 0.5,
     size = 1
   )
