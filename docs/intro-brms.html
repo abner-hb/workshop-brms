@@ -431,18 +431,17 @@ div.csl-indent {
 <h2 data-number="1.1" class="anchored" data-anchor-id="what-is-brms"><span class="header-section-number">1.1</span> What is <code>brms</code>?</h2>
 <p><code>brms</code> <span class="citation" data-cites="brms2017">(<a href="references.html#ref-brms2017" role="doc-biblioref">Bürkner 2017</a>)</span> is an R library for <strong>b</strong>ayesian <strong>r</strong>egression <strong>m</strong>odels using <strong>S</strong>tan:</p>
 <ul>
-<li>Models: a mathematical description of an observed or hypothesized behavior.</li>
+<li>Model: a mathematical description of an observed or hypothesized behavior.</li>
 <li>Regression: a model that describes parameters as linear combinations of variables.</li>
 <li>Bayesian: a model that uses Bayes’ theorem to obtain likely values for some quantity of interest.</li>
 <li>Stan: a probabilistic programming language for Bayesian modeling <span class="citation" data-cites="stan_manual_2026">(<a href="references.html#ref-stan_manual_2026" role="doc-biblioref">Stan Development Team 2026b</a>)</span>.</li>
 </ul>
-<p><code>brms</code> can fit many types of models, including linear, robust linear, count data, survival, response times, ordinal, zero-inflated, hurdle, and even self-defined mixture models. <code>brms</code> can also account for non-linear terms, auto-correlation structures, censoring and truncation, meta-analytic standard errors, and more. And it can combine these models into custom versions for more complicated data.</p>
-<p><code>brms</code> can give good uncertainty estimates for all these models. It also offers thorough diagnostics to check how well a model fits the data, and how reliable the estimated parameters are.</p>
-<p>Housing all these features in a single modeling library affords us a consistent syntax and an ecosystem of libraries that work automatically with most models. So, with <code>brms</code> we can learn new models incrementally and we can share code and tips with other people even their models differ from ours.</p>
+<p><code>brms</code> can fit many types of models, including linear, robust linear, count data, survival, response times, ordinal, zero-inflated, hurdle, and even self-defined mixture models. It can also account for non-linear terms, auto-correlation structures, censoring and truncation, meta-analytic standard errors, and more. All these models come with good uncertainty measurements and with thorough diagnostics to evaluate model fit and parameter reliability.</p>
+<p>By housing all these features, <code>brms</code> affords us a consistent syntax and an ecosystem of related libraries that work automatically with most models. So, with <code>brms</code> we can learn new models incrementally and we can share code and tips with other people even their models differ from ours.</p>
 </section>
 <section id="installation" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="installation"><span class="header-section-number">1.2</span> Installation</h2>
-<p>Making <code>brms</code> work in our computer requires some preparation. First, updating R to its latest version will help our libraries work better with each other and with R itself. Installing <code>brms</code> with an older version of R may work, but is likely to cause problems later. When we last checked, R version 4.6.1 was available</p>
+<p>Making <code>brms</code> work in our computer requires some preparation. First, updating R to its latest version will help our libraries work better with each other and with R itself. Installing <code>brms</code> with an older version of R may work, but is likely to cause problems later. When we last checked, R version 4.6.2 was available</p>
 <section id="c-toolchain" class="level3" data-number="1.2.1">
 <h3 data-number="1.2.1" class="anchored" data-anchor-id="c-toolchain"><span class="header-section-number">1.2.1</span> C++ toolchain</h3>
 <p><code>brms</code> needs a C++ toolchain to translate R models into a more efficient machinespeak that runs in the background. Setting up this toolchain can take several minutes, but needs to be done only once.</p>

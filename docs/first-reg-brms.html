@@ -420,8 +420,7 @@ div.csl-indent {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">brms.backend =</span> <span class="st">"cmdstanr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p><code>brms</code> allows us to add or remove parts of a model as needed, so our code is only as complicated as the model we want to fit. Simple code for simple models; fancy code for fancy models.</p>
-<p>Imagine, for example, that we like penguins and we want to study their weight. R has some clean data<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> about three types of chilly fellows: Adelie, Chinstrap, and Gentoo.</p>
+<p>Imagine that we like penguins and we want to study their weight. R has some clean data<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> about three types of chilly fellows: Adelie, Chinstrap, and Gentoo.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(penguins)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>penguins<span class="sc">$</span>body_mass_kg <span class="ot">&lt;-</span> penguins<span class="sc">$</span>body_mass <span class="sc">/</span> <span class="dv">1000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -460,7 +459,7 @@ Figure&nbsp;2.1: Three histograms show penguin weights
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The first time it sees a model, <code>brm()</code> <em>compiles</em> the code, i.e., it uses the C++ toolchain to translate the code into efficient machinespeak. <code>brm()</code> does not need to recompile unless we change something, so rerunning this same regression will be much faster (try it!). Think of <code>brm()</code> as a virtual chef that can cook many things but has to prepare the kitchen <em>after</em> we tell it what we want.</p>
-<p>Now we can ask the model what it thinks the average weights are. Understanding where these values above come from requires a taste of Bayesian statistics that we will savour soon. For now, though, we can summarize our results as follows, focusing on the table of regression coefficients.</p>
+<p>Now we can extract the models’ inferences on average weights. Understanding where these values come from requires a taste of Bayesian statistics that we will savour soon. For now, though, we can summarize our results as follows, focusing on the table of regression coefficients.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_peng1)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -486,7 +485,7 @@ and Tail_ESS are effective sample size measures, and Rhat is the potential
 scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <p>The <code>Intercept</code> represents the average weight of our Adelie penguins, while <code>speciesChinstrap</code> and <code>speciesGentoo</code> represent the differences of the averages of Chinstrap and Gentoo relative to Adelie. The column <code>Estimate</code> represents a clever guess of the values of the coefficients; <code>Est.Error</code> represents the margin of error of this guess; and <code>l-95% CI</code> and <code>u-95% CI</code> represent the limits of the <em>credibility</em> interval (similar to a <em>confidence</em> interval), a range for the most plausible values of the coefficient.</p>
 <p>Based on these results, we estimate that both Adelie and Chinstrap weight around 3.7 kilograms on average, while Gentoo penguins weight around 5.08 kilograms on average. We also estimate that the standard deviation of the weight of all penguin groups, <code>sigma</code>, is 0.46, which means that most penguins’ weights lie within 0.92 kilograms of their species average.</p>
-<p>The summaries we just saw suffice to understand the elementary aspects of many regression models. But the power and versatility of <code>brms</code> will be easier to wield if we devote a little time to learning a bit of Bayesian statistics and computation. We just learned how to turn on the oven. A bit more effort and we can learn to control the heat.</p>
+<p>The summaries we just saw suffice to understand the elementary aspects of many regression models. But the power and versatility of <code>brms</code> will be easier to wield if we learn a bit of Bayesian statistics and computation. We just learned how to turn on the oven. A bit more effort and we can learn to control the heat.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
