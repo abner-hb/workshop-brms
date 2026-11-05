@@ -94,7 +94,7 @@ An alternative to priors based on previous measurements is to use priors that
 discard implausible values but still allow wide ranges for all
 coefficients[^weak-inf-priors]. One common approach for this is to standardize
 all numerical dependent variables and assign them all a Normal distribution
-with mean zero and standard deviation 1^rescale-alternative.
+with mean zero and standard deviation 1[^rescale-alternative].
 
 [^weak-inf-priors]: This type of priors are usually called "weakly-informative
 priors".
