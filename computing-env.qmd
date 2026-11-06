@@ -3,6 +3,13 @@
 The information on the computing session and packages used throughout these
 notes is shown below.
 
+```{r}
+#| include: false
+# Use the following to get the session info
+# sessioninfo::session_info(info = c("platform", "packages"), to_file = "session-info.txt")
+# Then, edit by hand to remove unnecessary or sensitive info
+```
+
 ```{r computing environment info}
 #| eval: true
 writeLines(readLines("session-info.txt"))
